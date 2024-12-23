@@ -6,7 +6,8 @@ RPGツクールMZ用プラグイン"xksJsonTextEvent"の独自テキスト形式
 - JTE ファイルのシンタックスハイライト
 - コード補完
 - コメントのトグル (`Ctrl + /`)
-- ファイル保存時の通知
+- ブロック番号のカウント
+- `.jte.config.json`によるカスタマイズ
 
 ## インストール方法
 1. [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/) からインストールする
@@ -18,12 +19,14 @@ RPGツクールMZ用プラグイン"xksJsonTextEvent"の独自テキスト形式
    - 自動補完
    - シンタックスハイライト
    - ショートカットキー (`Ctrl + /`) を使ったコメントのトグル
+   - `.jte.config.json` によるカスタマイズ
+   - ブロック番号のカウント
 
 ## 開発者向け
-この拡張機能は TypeScript で記述され、VSCode API を活用しています。詳細なコードは [GitHub リポジトリ](https://github.com/your-username/vscode-jte-extension) を参照してください。
+詳細なコードは [GitHub リポジトリ](https://github.com/xkslab/vscode-jte-extension) を参照してください。
 
 ## 注意
-この拡張機能は RPGツクールMZ のプロジェクトに依存しています。`.jte.config.json` ファイルで正しい `projectDir` を設定してください。
+この拡張機能は RPGツクールMZ プラグイン "xksJsonTextEvent" 用ファイル形式の専用エディタです。
 
 ## ライセンス
 MIT License
