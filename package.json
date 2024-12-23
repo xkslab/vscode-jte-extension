@@ -1,0 +1,49 @@
+{
+  "name": "vscode-jte-extension",
+  "displayName": "vscode-jte-extension",
+  "description": "RPGツクールMZ用プラグイン\"xksJsonTextEvent\"の独自テキスト形式を編集する拡張機能",
+  "version": "0.0.1",
+  "publisher": "xks",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.18.0",
+    "typescript": "^4.9.5",
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onLanguage=jte",
+    "onCommand=jte.toggleComment",
+    "onSaveTextDocument"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "jte",
+      "aliases": ["JTE", "jte"],
+      "extensions": [".jte"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "jte",
+      "scopeName": "source.jte",
+      "path": "./syntaxes/jte.tmLanguage.json"
+    }],
+		"codeLens": [
+			{
+				"language": "jte"
+			}
+		],
+    "keybindings": [
+      {
+        "command": "jte.toggleComment",
+        "key": "ctrl+/",
+        "when": "editorTextFocus && editorLangId == 'jte'"
+      }
+    ]
+  },
+  	"main": "./out/extension.js"
+}

@@ -1,0 +1,28 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "RPG Maker Json Text Event",
+	"scopeName": "source.jte",
+	"fileTypes": [
+	  "jte"
+	],
+	"patterns": [
+		{
+			"begin": "^\\{\\}$",
+			"end": "^\n",
+			"name": "comment.block"
+		},
+		{
+			"match": "^\\{.+\\}$",
+			"include": "source.json"
+		},
+		{
+			"match": "\\\\[A-Za-z]+",
+			"name": "keyword.control"
+		},
+		{
+			"match": "\\\\[\\{\\}\\\\\\$\\.\\|\\!><\\^]+",
+			"name": "keyword.control"
+		}
+	]
+  }
+  
