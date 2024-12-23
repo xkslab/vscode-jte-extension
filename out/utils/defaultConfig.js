@@ -35,23 +35,6 @@ exports.defaultSchema = {
                 { value: "1", description: "中" },
                 { value: "2", description: "下" }
             ],
-            faceImage: [
-                { value: "Actor1", description: "顔画像" },
-                { value: "Actor2", description: "顔画像" },
-                { value: "Actor3", description: "顔画像" },
-                { value: "Evil", description: "顔画像" },
-                { value: "Monster", description: "顔画像" },
-                { value: "Nature", description: "顔画像" },
-                { value: "People1", description: "顔画像" },
-                { value: "People2", description: "顔画像" },
-                { value: "People3", description: "顔画像" },
-                { value: "People4", description: "顔画像" },
-                { value: "SF_Actor1", description: "顔画像" },
-                { value: "SF_Actor2", description: "顔画像" },
-                { value: "SF_Actor3", description: "顔画像" },
-                { value: "SF_Monster", description: "顔画像" },
-                { value: "SF_People1", description: "顔画像" }
-            ],
             faceIndex: [
                 { value: "0", description: "顔画像のインデックス" },
                 { value: "1", description: "顔画像のインデックス" },

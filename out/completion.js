@@ -2,12 +2,19 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerCompletionItemProvider = registerCompletionItemProvider;
 const vscode = require("vscode");
+const fs = require("fs");
+const path = require("path");
 const jteConfig_1 = require("./utils/jteConfig");
 const overrideSchema_1 = require("./utils/overrideSchema");
 const overrideControlSequence_1 = require("./utils/overrideControlSequence");
+const pathMapping = {
+    showPic: 'img/pictures',
+    bgm: 'audio/bgm',
+    msg: 'img/faces',
+};
 function registerCompletionItemProvider(context) {
     const provider = new JteCompletionItemProvider();
-    context.subscriptions.push(vscode.languages.registerCompletionItemProvider({ language: 'jte' }, provider, '"', ':', ',', '{', '[', '\\'));
+    context.subscriptions.push(vscode.languages.registerCompletionItemProvider({ language: 'jte' }, provider, '"', ':', ',', '{', '[', '\\', '/'));
     // 設定変更時のリスナーを登録
     const configWatcher = vscode.workspace.createFileSystemWatcher('**/.jte.config.json');
     configWatcher.onDidChange(() => {
@@ -15,7 +22,13 @@ function registerCompletionItemProvider(context) {
         if (newConfig) {
             provider.schema = (0, overrideSchema_1.overrideSchema)(newConfig);
             provider.controlSequence = (0, overrideControlSequence_1.overrideControlSequence)(newConfig);
+            provider.setConfig(newConfig);
             console.log('Updated schema and control sequence based on config change.');
+        }
+        else {
+            // ファイルが消えたりパースに失敗したりした場合
+            provider.setConfig(null);
+            console.log('Config is null after change.');
         }
     });
     context.subscriptions.push(configWatcher);
@@ -56,9 +69,17 @@ class JteCompletionItemProvider {
             { id: '30', color: '#a060e0（濃い紫）' },
             { id: '31', color: '#c080ff（紫）' },
         ];
+        this.config = null;
+        // 初期読み込み
         const userConfig = (0, jteConfig_1.loadConfig)();
+        if (userConfig) {
+            this.config = userConfig;
+        }
         this.schema = (0, overrideSchema_1.overrideSchema)(userConfig);
         this.controlSequence = (0, overrideControlSequence_1.overrideControlSequence)(userConfig);
+    }
+    setConfig(newConfig) {
+        this.config = newConfig;
     }
     // 補完アイテムを提供
     provideCompletionItems(document, position, token, context) {
@@ -76,8 +97,73 @@ class JteCompletionItemProvider {
                 const item = new vscode.CompletionItem(id, vscode.CompletionItemKind.Color);
                 item.insertText = id;
                 item.detail = `Color Code: ${color}`;
+                item.documentation = new vscode.MarkdownString(`**Preview:**\n\n![](https://dummyimage.com/16x16/${color.slice(1, 7)}/${color.slice(1, 7)})`);
                 return item;
             });
+        }
+        // Path 補完
+        let pathKeyMatch = null;
+        if (currentType === 'showPic' || currentType === 'bgm') {
+            const pathKeyRegex = /"path"\s*:\s*"([^"]*)$/;
+            pathKeyMatch = cursorText.match(pathKeyRegex);
+        }
+        else if (currentType === 'msg') {
+            const pathKeyRegex = /"faceImage"\s*:\s*"([^"]*)$/;
+            pathKeyMatch = cursorText.match(pathKeyRegex);
+        }
+        // path 補完をするのは currentType が pathMapping にある場合のみ
+        if (pathKeyMatch && pathMapping[currentType]) {
+            const partialPath = pathKeyMatch[1] || '';
+            // config が null なら補完できない
+            if (!this.config || !this.config._configPath || !this.config.projectDir) {
+                return [];
+            }
+            // .jte.config.json が置かれているディレクトリ
+            const configDir = path.dirname(this.config._configPath);
+            // プロジェクトのルート
+            const projectRoot = path.resolve(configDir, this.config.projectDir);
+            // 今回は showPic => projectRoot/img/pictures など
+            const baseDir = path.join(projectRoot, pathMapping[currentType]);
+            // partialPath まで付与して絶対パスを求める
+            const absolutePath = path.resolve(baseDir, partialPath);
+            let dirToRead = absolutePath;
+            try {
+                // もし partialPath がファイルの場合などは dirname を使う
+                if (!fs.statSync(absolutePath).isDirectory()) {
+                    dirToRead = path.dirname(absolutePath);
+                }
+            }
+            catch (err) {
+                // ファイルやディレクトリが存在しないなど
+                return [];
+            }
+            const suggestions = [];
+            const files = fs.readdirSync(dirToRead, { withFileTypes: true });
+            for (const f of files) {
+                // ファイル
+                if (f.isFile()) {
+                    const item = new vscode.CompletionItem(f.name, vscode.CompletionItemKind.File);
+                    item.detail = 'File';
+                    item.insertText = f.name;
+                    // 画像かどうか
+                    if (/\.(png|jpg|jpeg|gif|bmp|webp)$/i.test(f.name)) {
+                        const itemPath = path.join(absolutePath, f.name);
+                        const itemUri = vscode.Uri.file(itemPath).toString();
+                        const markdown = new vscode.MarkdownString(`<img src="${itemUri}" alt="${f.name}" style="max-height: 100px; max-width: 100px;">`);
+                        markdown.isTrusted = true;
+                        item.documentation = markdown;
+                    }
+                    suggestions.push(item);
+                }
+                else if (f.isDirectory()) {
+                    // ディレクトリ
+                    const item = new vscode.CompletionItem(f.name, vscode.CompletionItemKind.Folder);
+                    item.detail = 'Directory';
+                    item.insertText = f.name;
+                    suggestions.push(item);
+                }
+            }
+            return suggestions;
         }
         // キー候補を提供
         if (/\{\s*$/.test(cursorText)) {

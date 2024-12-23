@@ -6,14 +6,18 @@ const fs = require("fs");
 const path = require("path");
 /**
  * .jte.config.json を探索して読み込む
- * @returns 読み込んだコンフィグオブジェクト
+ * @returns 読み込んだコンフィグオブジェクト（見つからなければ null）
  */
 function loadConfig() {
-    const configPath = findConfigFile(vscode.window.activeTextEditor.document.uri.fsPath || "");
-    if (!configPath)
+    var _a;
+    const configPath = findConfigFile(((_a = vscode.window.activeTextEditor) === null || _a === void 0 ? void 0 : _a.document.uri.fsPath) || "");
+    if (!configPath) {
         return null;
+    }
     try {
-        return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+        const rawData = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+        rawData._configPath = configPath;
+        return rawData;
     }
     catch (error) {
         console.error(`.jte.config.json の読み込みに失敗しました: ${error}`);
@@ -22,7 +26,7 @@ function loadConfig() {
 }
 /**
  * .jte.config.json を探索（同階層から上位階層）
- * @param startPath 開始ディレクトリのパス
+ * @param startPath 開始となるファイルまたはディレクトリのパス
  * @returns 見つかった .jte.config.json のパス
  */
 function findConfigFile(startPath) {
