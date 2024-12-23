@@ -4,6 +4,7 @@ import { registerCompletionItemProvider } from './completion';
 import { registerColorDecoration } from './colorDecoration';
 import { registerToggleComment } from './toggleComment';
 import { registerSaveNotification } from './notice';
+import { registerHoverPreview } from './hoverPreview';
 
 export function activate(context: vscode.ExtensionContext) {
 	registerCountBlocksProvider(context);
@@ -15,6 +16,8 @@ export function activate(context: vscode.ExtensionContext) {
     registerToggleComment(context);
 
     registerSaveNotification(context);
+
+    registerHoverPreview(context);
 
 	vscode.window.showInformationMessage('JTE Extension is active!');
 }
