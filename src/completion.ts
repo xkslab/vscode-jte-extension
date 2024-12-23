@@ -171,9 +171,9 @@ class JteCompletionItemProvider implements vscode.CompletionItemProvider {
 					if (/\.(png|jpg|jpeg|gif|bmp|webp)$/i.test(f.name)) {
 						const itemPath = path.join(absolutePath, f.name);
 						const itemUri = vscode.Uri.file(itemPath).toString();
-						console.log(itemUri);
-
-						item.documentation = new vscode.MarkdownString(`![](${itemUri})`);
+						const md = new vscode.MarkdownString(`![](${itemUri})`);
+						md.isTrusted = true;
+						item.documentation = md;
 					}
 					suggestions.push(item);
 				} else if (f.isDirectory()) {

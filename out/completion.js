@@ -149,9 +149,9 @@ class JteCompletionItemProvider {
                     if (/\.(png|jpg|jpeg|gif|bmp|webp)$/i.test(f.name)) {
                         const itemPath = path.join(absolutePath, f.name);
                         const itemUri = vscode.Uri.file(itemPath).toString();
-                        const markdown = new vscode.MarkdownString(`<img src="${itemUri}" alt="${f.name}" style="max-height: 100px; max-width: 100px;">`);
-                        markdown.isTrusted = true;
-                        item.documentation = markdown;
+                        const md = new vscode.MarkdownString(`![](${itemUri})`);
+                        md.isTrusted = true;
+                        item.documentation = md;
                     }
                     suggestions.push(item);
                 }
