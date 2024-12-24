@@ -1,6 +1,6 @@
 ---
 layout: home
-title: RPGツクールMZ プラグイン配布サイト
+title: プラグイン紹介
 ---
 
 # xksJsonTextEvent プラグイン

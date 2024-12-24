@@ -2,3 +2,38 @@
 ---
 
 @import "minima";
+
+.site-footer {
+  background: #f8f9fa;
+  padding: 1.5rem 0;
+  text-align: center;
+  font-size: 0.875rem;
+  border-top: 1px solid #dee2e6;
+}
+
+.footer-content p {
+  margin: 0.5rem 0;
+}
+
+.footer-social ul {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: flex;
+  justify-content: center;
+}
+
+.footer-social li {
+  margin: 0 0.5rem;
+}
+
+.footer-social svg {
+  fill: #6c757d;
+  width: 24px;
+  height: 24px;
+  transition: fill 0.3s;
+}
+
+.footer-social svg:hover {
+  fill: #007bff;
+}
