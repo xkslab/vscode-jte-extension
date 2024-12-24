@@ -2,7 +2,7 @@
  * @target MZ
  * @plugindesc コマンドリスト管理プラグイン
  * @author xks
- * @version 0.0.1
+ * @version 0.0.2
  *
  * @param defaultMessageParams
  * @text メッセージのデフォルト値
@@ -22,7 +22,7 @@
  * @desc プリセット名とそのパラメータを設定します。{"preset": "プリセット名"}でプリセットパラメータを適用できます。
  * 
  * @help
- * このプラグインは、メッセージ、ピクチャ表示、ピクチャ削除などのイベントコマンドを、
+ * このプラグインは、メッセージ、ピクチャ表示、ピクチャ消去などのイベントコマンドを、
  * JSON + テキストの形式で定義し、リストとして管理・実行するためのプラグインです。
  *
  * 【コマンドリストの構造】
@@ -121,6 +121,14 @@
  * ここにメッセージ内容を記述。
  * プリセットパラメータが適用される。
  * 呼び出し時にパラメータの上書きも可能。（今回は名前の上書き）
+ * 
+ * ---
+ * 
+ * 免責：
+ * このプラグインに関して生じた問題について、作者は一切の責任を負いません。
+ * ご自身の責任においてご利用ください。
+ * 初期バージョンのため、不具合があると思われます。
+ * 今後、大きな変更があるかもしれません。
  * 
  * ---
  * 
@@ -386,10 +394,10 @@
     function executeShowPicCommand(json) {
         const settings = applyPresetAndDefaults(json, defaultPictureParams);
         const { id, path, origin, x, y, scaleX, scaleY, opacity, blendMode } = settings;
-
+        const basePath = path.replace(/\.[^/.]+$/, "");
         $gameScreen.showPicture(
             parseInt(id),
-            path,
+            basePath,
             parseInt(origin),
             parseInt(x),
             parseInt(y),
