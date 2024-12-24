@@ -1,6 +1,0 @@
-markdown: kramdown
-theme: minima
-minima:
-  navigation_links:
-    更新履歴: "/vscode-jte-extension/CHANGELOG"
-    xksJsonTextEvent: "/vscode-jte-extension/README"

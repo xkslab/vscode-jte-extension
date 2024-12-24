@@ -1,0 +1,13 @@
+title: xksJsonTextEvent プラグイン
+description: RPGツクールMZ用のイベント管理プラグイン「xksJsonTextEvent」を配布しています。
+theme: minima
+minima:
+  skin: classic
+  social_links:
+    - { platform: github, user_url: "https://github.com/xkslab/vscode-jte-extension", title: "GitHub Repository" }
+    - { platform: twitter, user_url: "https://x.com/xks1620684", title: "X (Twitter)" }
+header_pages:
+  - index.md
+  - CHANGELOG.md
+  - about.md
+permalink: /:path/
