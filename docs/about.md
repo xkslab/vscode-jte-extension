@@ -9,5 +9,5 @@ title: About
 
 ## 作者情報
 - 名前: くくす(xks)
-- GitHub: [xkslab](https://github.com/xkslab)
-- X (Twitter): [くくす(@xks1620684)](https://x.com/xks1620684)
+
+{% include social.html %}
