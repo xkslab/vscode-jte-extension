@@ -33,14 +33,14 @@ export const defaultSchema = {
                 { value: "2", description: "下" }
             ],
             faceIndex: [
-                { value: "0", description: "顔画像のインデックス" },
-                { value: "1", description: "顔画像のインデックス" },
-                { value: "2", description: "顔画像のインデックス" },
-                { value: "3", description: "顔画像のインデックス" },
-                { value: "4", description: "顔画像のインデックス" },
-                { value: "5", description: "顔画像のインデックス" },
-                { value: "6", description: "顔画像のインデックス" },
-                { value: "7", description: "顔画像のインデックス" }
+                { value: "0", description: "左上" },
+                { value: "1", description: "左から２番目の上" },
+                { value: "2", description: "左から３番目の上" },
+                { value: "3", description: "右上" },
+                { value: "4", description: "左下" },
+                { value: "5", description: "左から２番目の下" },
+                { value: "6", description: "左から２番目の下" },
+                { value: "7", description: "右下" }
             ]
         }
     },
