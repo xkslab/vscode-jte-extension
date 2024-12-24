@@ -14,10 +14,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # public以下のファイルをGitHub Pagesにデプロイ
+      # GitHub Pagesへのデプロイ
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public # publicフォルダを公開
-          destination_dir: . # publicをルートにマッピング
+          github_token: ${{ secrets.GITHUB_TOKEN }} # GitHub Actionsのトークン
+          publish_dir: ./public # publicフォルダ内のファイルを公開
+          destination_dir: . # ルートディレクトリとして公開
+          enable_jekyll: false # .nojekyllファイルを生成しない
