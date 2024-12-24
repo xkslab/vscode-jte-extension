@@ -2,7 +2,7 @@
   "name": "vscode-jte-extension",
   "displayName": "vscode-jte-extension",
   "description": "RPGツクールMZ用プラグイン\"xksJsonTextEvent\"の独自テキスト形式を編集する拡張機能",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "publisher": "xks",
   "engines": {
     "vscode": "^1.96.0"
