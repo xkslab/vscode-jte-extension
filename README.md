@@ -78,7 +78,7 @@ JTE形式のコーディングを支援するVisual Studio Code拡張機能 [vsc
 詳細は[こちら](https://marketplace.visualstudio.com/items?itemName=xks.vscode-jte-extension)をご覧ください。
 
 ## 更新情報
-プラグインの最新情報や更新履歴は、[CHANGELOG.md](https://xkslab.github.io/vscode-jte-extension/CHANGELOG.md) を参照してください。
+プラグインの最新情報や更新履歴は、[CHANGELOG](https://xkslab.github.io/vscode-jte-extension/CHANGELOG) を参照してください。
 
 ## 貢献
 バグ報告や機能リクエストは、GitHubリポジトリで受け付けています。
