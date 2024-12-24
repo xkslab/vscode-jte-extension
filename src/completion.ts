@@ -121,10 +121,10 @@ class JteCompletionItemProvider implements vscode.CompletionItemProvider {
 		// Path 補完
 		let pathKeyMatch = null;
 		if (currentType === 'showPic' || currentType === 'bgm') {
-			const pathKeyRegex = /"path"\s*:\s*"([^"]*)$/;
+			const pathKeyRegex = /"path"\s*:\s*"?([^"]*)$/;
 			pathKeyMatch = cursorText.match(pathKeyRegex);
 		} else if (currentType === 'msg') {
-			const pathKeyRegex = /"faceImage"\s*:\s*"([^"]*)$/;
+			const pathKeyRegex = /"faceImage"\s*:\s*"?([^"]*)$/;
 			pathKeyMatch = cursorText.match(pathKeyRegex);
 		}
 
@@ -166,7 +166,42 @@ class JteCompletionItemProvider implements vscode.CompletionItemProvider {
 				if (f.isFile()) {
 					const item = new vscode.CompletionItem(f.name, vscode.CompletionItemKind.File);
 					item.detail = 'File';
-					item.insertText = f.name;
+					// 挿入テキスト
+					let insertText = f.name;
+					let cursorMoveDistance = 1; // デフォルトで1文字右に移動
+		
+					// 左側にクォートがない場合にクォートを追加
+					if (!cursorText.endsWith("\"")) {
+						if (!cursorText.endsWith("/")) {
+							insertText = `"${insertText}`;
+							if (cursorText.endsWith(":")) {
+								insertText = ` ${insertText}`; // コロンの後にスペースを追加
+							}
+						}
+					}
+
+					// 閉じクォートがない場合に閉じクォートを追加
+					if (!cursorTextPost.startsWith("\"")) {
+						insertText = `${insertText}"`;
+						cursorMoveDistance = 0; // 移動不要
+					}
+		
+					item.insertText = insertText;
+		
+					// カーソル移動コマンドを設定
+					if (cursorMoveDistance > 0) {
+						item.command = {
+							title: "Move cursor",
+							command: "cursorMove",
+							arguments: [
+								{
+									to: "right",
+									by: "character",
+									value: cursorMoveDistance,
+								},
+							],
+						};
+					}
 					// 画像かどうか
 					if (/\.(png|jpg|jpeg|gif|bmp|webp)$/i.test(f.name)) {
 						const itemPath = path.join(absolutePath, f.name);
@@ -180,7 +215,16 @@ class JteCompletionItemProvider implements vscode.CompletionItemProvider {
 					// ディレクトリ
 					const item = new vscode.CompletionItem(f.name, vscode.CompletionItemKind.Folder);
 					item.detail = 'Directory';
-					item.insertText = f.name;
+					let insertText = f.name;
+					if (!cursorText.endsWith("\"")) {
+						if (!cursorText.endsWith("/")) {
+							insertText = `"${insertText}`;
+							if (cursorText.endsWith(":")) {
+								insertText = ` ${insertText}`; // コロンの後にスペースを追加
+							}
+						}
+					}
+					item.insertText = insertText;
 					suggestions.push(item);
 				}
 			}
@@ -188,68 +232,95 @@ class JteCompletionItemProvider implements vscode.CompletionItemProvider {
 		}
 
 		// キー候補を提供
-		if (/\{\s*$/.test(cursorText)) {
-            // カーソルが `{` の後ろにある場合
-            let insertText = "\"";
-            if (cursorTextPost.slice(0, 1) === "\"") {
-                insertText = "";
-            }
+		if (/\{\s*\"?$/.test(cursorText) || /,\s*\"?$/.test(cursorText)) {
 			return this.schema[currentType]?.properties.map(({ key, description }) => {
 				const item = new vscode.CompletionItem(key, vscode.CompletionItemKind.Property);
-				item.insertText = `"${key}${insertText}`;
 				item.detail = description;
-				return item;
-			}) ?? [];
-		}
-        if (/,$/.test(cursorText)) {
-            // カーソルが `,` の後ろにある場合
-            let insertText = "\"";
-            if (cursorTextPost.slice(0, 1) === "\"") {
-                insertText = "";
-            }
-			return this.schema[currentType]?.properties.map(({ key, description }) => {
-				const item = new vscode.CompletionItem(key, vscode.CompletionItemKind.Property);
-				item.insertText = ` "${key}${insertText}`;
-				item.detail = description;
-				return item;
-			}) ?? [];
-		}
-        if (/\{\s*\"$/.test(cursorText) || /,\s*\"$/.test(cursorText)) {
-            // カーソルが `{"`, `,"` の後ろにある場合
-            let insertText = "\"";
-            if (cursorTextPost.slice(0, 1) === "\"") {
-                insertText = "";
-            }
-			return this.schema[currentType]?.properties.map(({ key, description }) => {
-				const item = new vscode.CompletionItem(key, vscode.CompletionItemKind.Property);
-				item.insertText = `${key}${insertText}`;
-				item.detail = description;
+
+				const range = new vscode.Range(position, position);
+
+				// 挿入テキストとカーソル移動距離の初期化
+				let insertText = key;
+				let cursorMoveDistance = 1;
+
+				// 左側にクォートがない場合の処理
+				if (!cursorText.endsWith("\"")) {
+					insertText = `"${insertText}`;
+					if (cursorText.endsWith(",")) {
+						insertText = ` ${insertText}`; // カンマの後にスペースを追加
+					}
+				}
+
+				// 右側に閉じクォートがない場合の処理
+				if (!cursorTextPost.startsWith("\"")) {
+					insertText = `${insertText}"`;
+					cursorMoveDistance = 0; // 移動不要
+				}
+
+				// 挿入テキストと範囲を設定
+				item.insertText = insertText;
+				item.range = range;
+
+				// 必要時のみカーソル移動コマンドを設定
+				if (cursorMoveDistance > 0) {
+					item.command = {
+						title: "Move cursor",
+						command: "cursorMove",
+						arguments: [
+							{
+								to: "right",
+								by: "character",
+								value: cursorMoveDistance,
+							},
+						],
+					};
+				}
+
 				return item;
 			}) ?? [];
 		}
 
 		// 値候補を提供
-		const keyMatch = cursorText.match(/"\s*(\w+)\s*"\s*:$/);
+		const keyMatch = cursorText.match(/"\s*(\w+)\s*"\s*:\s*"?$/);
 		if (keyMatch) {
 			const key = keyMatch[1];
 			return this.schema[currentType]?.values[key]?.map(({ value, description }) => {
 				const item = new vscode.CompletionItem(value, vscode.CompletionItemKind.Value);
-				item.insertText = ` "${value}"`;
+				let insertText = value;
+				let cursorMoveDistance = 1; // デフォルトで1文字右に移動
+
+				// 左側にクォートがない場合、クォートを補完
+				if (!cursorText.endsWith("\"")) {
+					insertText = `"${insertText}`;
+					if (cursorText.endsWith(":")){
+						insertText = ` ${insertText}`; // コロンの後にスペースを追加
+					}
+				}
+
+				// 右側に閉じクォートがない場合、閉じクォートを補完
+				if (!cursorTextPost.startsWith("\"")) {
+					insertText = `${insertText}"`;
+					cursorMoveDistance = 0; // 移動不要
+				}
+
+				item.insertText = insertText;
 				item.detail = description;
-				return item;
-			}) ?? [];
-		}
-        const keyMatch2 = cursorText.match(/"\s*(\w+)\s*"\s*:\s*"$/);
-		if (keyMatch2) {
-			const key = keyMatch2[1];
-            let insertText = "\"";
-            if (cursorTextPost.slice(0, 1) === "\"") {
-                insertText = "";
-            }
-			return this.schema[currentType]?.values[key]?.map(({ value, description }) => {
-				const item = new vscode.CompletionItem(value, vscode.CompletionItemKind.Value);
-				item.insertText = `${value}${insertText}`;
-				item.detail = description;
+
+				// 必要時のみカーソル移動コマンドを設定
+				if (cursorMoveDistance > 0) {
+					item.command = {
+						title: "Move cursor",
+						command: "cursorMove",
+						arguments: [
+							{
+								to: "right",
+								by: "character",
+								value: cursorMoveDistance,
+							},
+						],
+					};
+				}
+
 				return item;
 			}) ?? [];
 		}
