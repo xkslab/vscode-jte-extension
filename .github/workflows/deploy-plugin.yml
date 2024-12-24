@@ -1,0 +1,23 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    tags:
+      - 'Plugin-v*' # Plugin-vで始まるすべてのタグに反応
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # リポジトリをクローン
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # public以下のファイルをGitHub Pagesにデプロイ
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public # publicフォルダを公開
+          destination_dir: . # publicをルートにマッピング

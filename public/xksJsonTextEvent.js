@@ -2,6 +2,7 @@
  * @target MZ
  * @plugindesc コマンドリスト管理プラグイン
  * @author xks
+ * @version 0.0.1
  *
  * @param defaultMessageParams
  * @text メッセージのデフォルト値
