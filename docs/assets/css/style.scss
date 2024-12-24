@@ -4,36 +4,37 @@
 @import "minima";
 
 .site-footer {
-  background: #f8f9fa;
-  padding: 1.5rem 0;
-  text-align: center;
-  font-size: 0.875rem;
-  border-top: 1px solid #dee2e6;
+  text-align: center; /* テキストを中央揃え */
+  margin-top: 2rem; /* フッターと他コンテンツの間に余白を追加 */
+  padding: 1rem 0; /* 上下の余白を追加 */
+  background-color: #f8f9fa; /* 背景色を淡いグレーに設定（オプション） */
+  border-top: 1px solid #dee2e6; /* 上に薄い境界線を追加 */
+  font-size: 0.9rem; /* フォントサイズを少し小さく */
 }
 
-.footer-content p {
-  margin: 0.5rem 0;
+.footer-content,
+.footer-social {
+  max-width: 800px; /* コンテンツを中央に収める最大幅を指定 */
+  margin: 0 auto; /* 中央寄せ */
 }
 
 .footer-social ul {
-  list-style: none;
-  padding: 0;
-  margin: 1rem 0 0;
-  display: flex;
-  justify-content: center;
+  list-style: none; /* リストの点を消す */
+  padding: 0; /* パディングをリセット */
+  display: flex; /* リストアイテムを横並びに */
+  justify-content: center; /* 横並びを中央揃え */
+  margin-top: 1rem; /* リストと他のフッターコンテンツの間に余白 */
 }
 
 .footer-social li {
-  margin: 0 0.5rem;
+  margin: 0 0.5rem; /* アイコン間のスペースを設定 */
 }
 
 .footer-social svg {
-  fill: #6c757d;
-  width: 24px;
-  height: 24px;
-  transition: fill 0.3s;
+  fill: #6c757d; /* アイコンの色を薄いグレー */
+  transition: fill 0.3s; /* ホバー時の色変化をスムーズに */
 }
 
 .footer-social svg:hover {
-  fill: #007bff;
+  fill: #007bff; /* ホバー時に青色へ */
 }
