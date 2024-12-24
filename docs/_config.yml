@@ -4,8 +4,8 @@ theme: minima
 minima:
   skin: classic
   social_links:
-    - { platform: github, user_url: "https://github.com/xkslab/vscode-jte-extension", title: "GitHub Repository" }
-    - { platform: twitter, user_url: "https://x.com/xks1620684", title: "X (Twitter)" }
+    - { platform: github, user_url: "https://github.com/xkslab/vscode-jte-extension" }
+    - { platform: twitter, user_url: "https://x.com/xks1620684" }
 header_pages:
   - CHANGELOG.md
   - about.md
