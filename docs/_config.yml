@@ -5,3 +5,4 @@ header_pages:
   - CHANGELOG.md
   - about.md
 permalink: /:path/
+google_analytics: G-LHN5CVRBN0
