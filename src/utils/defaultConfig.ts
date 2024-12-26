@@ -108,8 +108,8 @@ export const defaultControlSequence = [
 ];
 
 export const defaultTypeColorMap: Record<string, string> = {
-    msg: 'rgba(0, 128, 255, 0.5)',     // 青
-    showPic: 'rgba(0, 255, 128, 0.5)', // 緑
+    msg: 'rgba(255, 150, 70, 0.5)',     // 青
+    showPic: 'rgba(0, 212, 198, 0.5)', // 緑
     delPic: 'rgba(255, 0, 128, 0.5)',  // ピンク
     default: 'rgba(128, 128, 128, 0.5)'// グレー
 };
