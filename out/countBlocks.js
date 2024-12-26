@@ -11,7 +11,10 @@ function registerCountBlocksProvider(context) {
 }
 class JteCountBlocksProvider {
     constructor() {
-        this.regex = /^(?<!\{\}\s*\n?)\{.+\}$/; // １行がJSON（空JSONを除外）かどうか判定
+        // １行がJSON（空JSONを除外）かどうか判定
+        this.regex = /^(?<!\{\}\s*\n?)\{.+\}$/;
+        // ブロックの先頭行に `{}のみ` があればコメントアウトとみなす
+        this.emptyJsonRegex = /^\{\}\s*$/;
         this.excludeTypes = [""]; // カウント対象外のtype値
         /**
          * ユーザが「blockColor = false」やカスタムタイプを設定しているかを反映し、
@@ -19,59 +22,43 @@ class JteCountBlocksProvider {
          *   type => TextEditorDecorationType
          */
         this.decorationTypes = {};
-        // コンストラクタではまだVSCode設定が読み込めない場合もあるため、
-        // 実際の作成は「provideCodeLenses」で行うか、
-        // もしくはコンストラクタ内で loadConfig() を呼んでもOK
-        // 今回はコンストラクタ内でまとめて初期化してみる例
+        // コンストラクタ内でまとめて初期化
         this.initializeDecorationTypes();
     }
     /**
      * デフォルトカラー + ユーザ設定を反映して decorationTypes を初期化
      */
     initializeDecorationTypes() {
-        // 2) ユーザ設定を読み込む
         const config = (0, jteConfig_1.loadConfig)();
         const userBlockColor = config === null || config === void 0 ? void 0 : config.blockColor;
-        // 例: {
-        //   "msg": "#FF0000",      // msg を赤に上書き
-        //   "delPic": false,       // delPic だけ無効化したい場合(自由実装)
-        //   "myCustomType": "#00FFFF", // 新規type追加
-        // }
-        // 3) blockColor が false の場合、全タイプの装飾をオフにする
-        console.log('userBlockColor:', userBlockColor);
+        // blockColor が false の場合、ブロックカラー自体を無効化
         if (userBlockColor === false) {
-            // 何もしない → this.decorationTypes は空のまま
-            // => ブロックカラー表示が一切なくなる
             this.decorationTypes = {};
             return;
         }
-        // 4) デフォルトとユーザ設定をマージしたカラーマップを作成
-        //    - ユーザ設定でキーが重複した場合は上書き
-        //    - ユーザが新しい type を追加していれば増やす
-        //    - ユーザ設定が false の場合は、その type は無効(スキップ)にする
+        // デフォルト + ユーザ上書き
         const mergedColorMap = Object.assign({}, defaultConfig_1.defaultTypeColorMap);
         if (typeof userBlockColor === 'object') {
             for (const [typeKey, colorOrOff] of Object.entries(userBlockColor)) {
                 if (colorOrOff === false) {
-                    // 「false」が指定されているtypeは無効化 → 削除
                     delete mergedColorMap[typeKey];
                 }
                 else if (typeof colorOrOff === 'string') {
-                    // 文字列ならカラーコードとみなして上書き
                     mergedColorMap[typeKey] = colorOrOff;
                 }
-                // それ以外は無視
             }
         }
-        // 5) mergedColorMap にあるすべてのtypeについて DecorationType を作る
-        //    "before" 擬似要素で左端に線を描画 + marginでテキストとの間を空ける
+        // mergedColorMap にある全ての type について DecorationType を作成
         const decorationTypes = {};
         for (const [typeKey, color] of Object.entries(mergedColorMap)) {
             decorationTypes[typeKey] = vscode.window.createTextEditorDecorationType({
                 before: {
                     contentText: '',
-                    margin: '0 8px 0 0',
-                    textDecoration: color !== '' ? `none; border-left: 4px solid ${color};` : 'none; border-left: 4px solid rgba(0, 0, 0, 0);'
+                    margin: '0 8px 0 0', // テキストとの間に余白
+                    // left border を擬似CSSで描画
+                    textDecoration: color !== ''
+                        ? `none; border-left: 4px solid ${color};`
+                        : 'none; border-left: 4px solid rgba(0, 0, 0, 0);'
                 }
             });
         }
@@ -86,14 +73,10 @@ class JteCountBlocksProvider {
         if (!textEditor) {
             return [];
         }
-        // 毎回設定を再読み込みして反映したい場合はここで再実行してもOK
-        // (ユーザーが設定を変えた時のリアルタイム反映を狙うなら)
-        // this.initializeDecorationTypes();
         const lenses = [];
         const config = (0, jteConfig_1.loadConfig)();
         const lineCount = document.lineCount;
-        // typeごとに行を貯めるマップ: { msg: Range[], showPic: Range[], ... }
-        // decorationTypes に存在する type だけ準備
+        // 全ての typeKey について行リストを初期化
         const decorationRangeMap = {};
         for (const typeKey of Object.keys(this.decorationTypes)) {
             decorationRangeMap[typeKey] = [];
@@ -102,7 +85,24 @@ class JteCountBlocksProvider {
         let blockNumber = 1;
         while (i < lineCount) {
             const lineText = document.lineAt(i).text;
-            // JSON行かどうか
+            // --- コメントアウトされたブロック（先頭行が {} の場合） ---
+            if (this.emptyJsonRegex.test(lineText)) {
+                // この行を先頭とし、次の空行（or EOF）までをコメントアウトとしてスキップ
+                let j = i + 1;
+                while (j < lineCount) {
+                    const nextLineText = document.lineAt(j).text;
+                    if (!nextLineText.trim()) {
+                        // 空行に到達したので終了
+                        break;
+                    }
+                    j++;
+                }
+                // j は空行 or EOF
+                // この範囲はコメントアウトなので何もしない
+                i = j + 1;
+                continue;
+            }
+            // --- 実際のブロック開始行かどうか ---
             if (this.regex.test(lineText)) {
                 let parsedJson;
                 try {
@@ -119,7 +119,7 @@ class JteCountBlocksProvider {
                 }
                 // ブロック開始行
                 const startLine = i;
-                // 空行またはEOFまで読み飛ばし
+                // 空行 or EOF まで読み進める
                 let j = i + 1;
                 while (j < lineCount) {
                     const nextLineText = document.lineAt(j).text;
@@ -128,11 +128,10 @@ class JteCountBlocksProvider {
                     }
                     j++;
                 }
-                // ブロック最終行
                 const endLine = j - 1 >= startLine ? j - 1 : startLine;
-                // CodeLens: JSON行(ブロック開始行)にだけ付与
+                // CodeLens は JSON行(=ブロック開始行)にだけ付与
                 lenses.push(new vscode.CodeLens(new vscode.Range(new vscode.Position(startLine, 0), new vscode.Position(startLine, 0)), { title: `ブロック番号: ${blockNumber++}`, command: '' }));
-                // JSON の type を確定
+                // JSON の type
                 let blockType = (_a = parsedJson.type) !== null && _a !== void 0 ? _a : 'default';
                 // preset があれば上書き
                 if (parsedJson.preset && ((_e = (_d = (_c = (_b = config === null || config === void 0 ? void 0 : config.codeCompletion) === null || _b === void 0 ? void 0 : _b.json) === null || _c === void 0 ? void 0 : _c.default) === null || _d === void 0 ? void 0 : _d.values) === null || _e === void 0 ? void 0 : _e.preset)) {
@@ -144,37 +143,33 @@ class JteCountBlocksProvider {
                         }
                     }
                 }
-                // decorationTypes に存在しなければ 'default'
+                // decorationTypes に無い場合は default
                 if (!this.decorationTypes[blockType]) {
                     blockType = 'default';
                 }
-                // もし 'default' にも存在しない(ユーザが blockColor=false にした可能性)なら、
-                // なにもデコレーションを適用しない
+                // default も無い可能性がある → その場合はスキップ
                 if (!this.decorationTypes[blockType]) {
-                    // 次のブロック探索へ
                     i = j + 1;
                     continue;
                 }
-                // ブロック全行( startLine ~ endLine )に対して
-                // 「before 装飾」を適用するための Range を追加
+                // ブロック全行にデコレーションを適用
                 for (let lineIndex = startLine; lineIndex <= endLine; lineIndex++) {
                     decorationRangeMap[blockType].push(new vscode.Range(new vscode.Position(lineIndex, 0), new vscode.Position(lineIndex, 0)));
                 }
-                // 次のブロックへ。空行をスキップ
+                // 次のブロックへ（空行スキップ）
                 i = j + 1;
             }
             else {
+                // JSON行でなければ次へ
                 i++;
             }
         }
         // 既存のデコレーションをクリア
-        // (あるいは if したいならする)
         for (const [typeKey, decoration] of Object.entries(this.decorationTypes)) {
             textEditor.setDecorations(decoration, []);
         }
         // まとめて適用
         for (const [typeKey, ranges] of Object.entries(decorationRangeMap)) {
-            // 万一 typeKey が decorationTypes に消えていたらスキップ
             const decoration = this.decorationTypes[typeKey];
             if (!decoration)
                 continue;
@@ -183,7 +178,7 @@ class JteCountBlocksProvider {
         return lenses;
     }
     dispose() {
-        // 拡張破棄時にデコレーションも破棄
+        // Extension dispose 時にデコレーションを破棄
         for (const typeKey of Object.keys(this.decorationTypes)) {
             this.decorationTypes[typeKey].dispose();
         }
