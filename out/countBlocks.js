@@ -31,8 +31,8 @@ class JteCountBlocksProvider {
     initializeDecorationTypes() {
         const config = (0, jteConfig_1.loadConfig)();
         const userBlockColor = config === null || config === void 0 ? void 0 : config.blockColor;
-        // blockColor が false の場合、ブロックカラー自体を無効化
-        if (userBlockColor === false) {
+        const hideBlockColor = config === null || config === void 0 ? void 0 : config.hideBlockColor;
+        if (hideBlockColor) {
             this.decorationTypes = {};
             return;
         }

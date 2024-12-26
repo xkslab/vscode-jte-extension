@@ -36,9 +36,9 @@ class JteCountBlocksProvider implements vscode.CodeLensProvider, vscode.Disposab
   private initializeDecorationTypes() {
     const config = loadConfig();
     const userBlockColor = config?.blockColor; 
-
-    // blockColor が false の場合、ブロックカラー自体を無効化
-    if (userBlockColor === false) {
+    const hideBlockColor = config?.hideBlockColor;
+    
+    if (hideBlockColor) {
       this.decorationTypes = {};
       return;
     }

@@ -8,6 +8,7 @@ export interface JteConfig {
     codeCompletion?: any;
 	_configPath?: string;
 	blockColor?: any;
+	hideBlockColor?: Boolean;
 }
 
 /**
