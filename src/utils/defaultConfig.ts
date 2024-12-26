@@ -106,3 +106,10 @@ export const defaultControlSequence = [
     { key: "<", description: "\\< 文字を一瞬で表示する効果を取り消します。" },
     { key: "^", description: "\\^ 文章表示後の入力待ちをしません。" },
 ];
+
+export const defaultTypeColorMap: Record<string, string> = {
+    msg: 'rgba(0, 128, 255, 0.5)',     // 青
+    showPic: 'rgba(0, 255, 128, 0.5)', // 緑
+    delPic: 'rgba(255, 0, 128, 0.5)',  // ピンク
+    default: 'rgba(128, 128, 128, 0.5)'// グレー
+};

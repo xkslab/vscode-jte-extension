@@ -7,6 +7,7 @@ export interface JteConfig {
 	projectDir?: string;
     codeCompletion?: any;
 	_configPath?: string;
+	blockColor?: any;
 }
 
 /**

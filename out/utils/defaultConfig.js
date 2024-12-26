@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.defaultControlSequence = exports.defaultSchema = void 0;
+exports.defaultTypeColorMap = exports.defaultControlSequence = exports.defaultSchema = void 0;
 // プロパティと値の対応表
 exports.defaultSchema = {
     default: {
@@ -108,3 +108,9 @@ exports.defaultControlSequence = [
     { key: "<", description: "\\< 文字を一瞬で表示する効果を取り消します。" },
     { key: "^", description: "\\^ 文章表示後の入力待ちをしません。" },
 ];
+exports.defaultTypeColorMap = {
+    msg: 'rgba(0, 128, 255, 0.5)', // 青
+    showPic: 'rgba(0, 255, 128, 0.5)', // 緑
+    delPic: 'rgba(255, 0, 128, 0.5)', // ピンク
+    default: 'rgba(128, 128, 128, 0.5)' // グレー
+};
