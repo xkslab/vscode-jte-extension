@@ -7,13 +7,16 @@ export const defaultSchema = {
         ],
         values: {
             type: [
-                { value: "msg", description: "文章の表示" },
-                { value: "showPic", description: "ピクチャの表示" },
-                { value: "delPic", description: "ピクチャの消去" }
+                { value: "show text", description: "文章の表示" },
+                { value: "文章の表示", description: "文章の表示" },
+                { value: "show picture", description: "ピクチャの表示" },
+                { value: "ピクチャの表示", description: "ピクチャの表示" },
+                { value: "erase picture", description: "ピクチャの消去" },
+                { value: "ピクチャの消去", description: "ピクチャの消去" }
             ],
         }
     },
-    msg: {
+    "show text": {
         properties: [
             { key: "name", description: "名前" },
             { key: "bg", description: "背景" },
@@ -44,7 +47,7 @@ export const defaultSchema = {
             ]
         }
     },
-    showPic: {
+    "show picture": {
         properties: [
             { key: "id", description: "ピクチャ番号" },
             { key: "path", description: "画像パス" },
@@ -74,7 +77,7 @@ export const defaultSchema = {
             ]
         }
     },
-    delPic: {
+    "erase picture": {
         properties: [
             { key: "id", description: "ピクチャ番号" }
         ],
@@ -85,8 +88,12 @@ export const defaultSchema = {
                 { value: "3", description: "ピクチャ番号" }
             ]
         }
-    }
+    },
 };
+
+defaultSchema["文章の表示"] = defaultSchema["show text"];
+defaultSchema["ピクチャの表示"] = defaultSchema["show picture"];
+defaultSchema["ピクチャの消去"] = defaultSchema["erase picture"];
 
 export const defaultControlSequence = [
     { key: "V", description: "\\V[n] 変数n番の値に置き換えられます。" },
@@ -108,8 +115,8 @@ export const defaultControlSequence = [
 ];
 
 export const defaultTypeColorMap: Record<string, string> = {
-    msg: 'rgba(255, 150, 70, 0.5)',     // 青
-    showPic: 'rgba(0, 212, 198, 0.5)', // 緑
-    delPic: 'rgba(255, 0, 128, 0.5)',  // ピンク
+    "show text": 'rgba(255, 150, 70, 0.5)',     // 青
+    "show picture": 'rgba(0, 212, 198, 0.5)', // 緑
+    "erase picture": 'rgba(255, 0, 128, 0.5)',  // ピンク
     default: 'rgba(128, 128, 128, 0.5)'// グレー
 };

@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { loadConfig } from './utils/jteConfig';
+import { pathMapping } from './utils/path';
 
 export function registerHoverPreview(context: vscode.ExtensionContext) {
     const hoverProvider = new JteHoverProvider();
@@ -60,13 +61,7 @@ class JteHoverProvider implements vscode.HoverProvider {
     }
     
     private resolvePathByType(type: string, relativePath: string): string | null {
-        const typeToDirMapping: Record<string, string> = {
-            showPic: 'img/pictures',
-            msg: 'img/faces',
-            bgm: 'audio/bgm',
-        };
-    
-        const subDir = typeToDirMapping[type];
+        const subDir = pathMapping[type];
         if (!subDir) return null;
     
         return path.join(this.projectRoot, subDir, relativePath);

@@ -7,11 +7,7 @@ const path = require("path");
 const jteConfig_1 = require("./utils/jteConfig");
 const overrideSchema_1 = require("./utils/overrideSchema");
 const overrideControlSequence_1 = require("./utils/overrideControlSequence");
-const pathMapping = {
-    showPic: 'img/pictures',
-    bgm: 'audio/bgm',
-    msg: 'img/faces',
-};
+const path_1 = require("./utils/path");
 function registerCompletionItemProvider(context) {
     const provider = new JteCompletionItemProvider();
     context.subscriptions.push(vscode.languages.registerCompletionItemProvider({ language: 'jte' }, provider, '"', ':', ',', '{', '[', '\\', '/'));
@@ -103,16 +99,16 @@ class JteCompletionItemProvider {
         }
         // Path 補完
         let pathKeyMatch = null;
-        if (currentType === 'showPic' || currentType === 'bgm') {
+        if (currentType === 'show picture' || currentType === 'bgm') {
             const pathKeyRegex = /"path"\s*:\s*"?([^"]*)$/;
             pathKeyMatch = cursorText.match(pathKeyRegex);
         }
-        else if (currentType === 'msg') {
+        else if (currentType === 'show text') {
             const pathKeyRegex = /"faceImage"\s*:\s*"?([^"]*)$/;
             pathKeyMatch = cursorText.match(pathKeyRegex);
         }
         // path 補完をするのは currentType が pathMapping にある場合のみ
-        if (pathKeyMatch && pathMapping[currentType]) {
+        if (pathKeyMatch && path_1.pathMapping[currentType]) {
             const partialPath = pathKeyMatch[1] || '';
             // config が null なら補完できない
             if (!this.config || !this.config._configPath || !this.config.projectDir) {
@@ -122,8 +118,8 @@ class JteCompletionItemProvider {
             const configDir = path.dirname(this.config._configPath);
             // プロジェクトのルート
             const projectRoot = path.resolve(configDir, this.config.projectDir);
-            // 今回は showPic => projectRoot/img/pictures など
-            const baseDir = path.join(projectRoot, pathMapping[currentType]);
+            // 今回は show picture => projectRoot/img/pictures など
+            const baseDir = path.join(projectRoot, path_1.pathMapping[currentType]);
             // partialPath まで付与して絶対パスを求める
             const absolutePath = path.resolve(baseDir, partialPath);
             let dirToRead = absolutePath;

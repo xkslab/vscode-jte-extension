@@ -4,12 +4,7 @@ import * as path from 'path';
 import { loadConfig, JteConfig } from './utils/jteConfig';
 import { overrideSchema } from './utils/overrideSchema';
 import { overrideControlSequence } from './utils/overrideControlSequence';
-
-const pathMapping: Record<string, string> = {
-	showPic: 'img/pictures',
-	bgm: 'audio/bgm',
-	msg: 'img/faces',
-};
+import { pathMapping } from './utils/path';
 
 export function registerCompletionItemProvider(context: vscode.ExtensionContext) {
     const provider = new JteCompletionItemProvider();
@@ -120,10 +115,10 @@ class JteCompletionItemProvider implements vscode.CompletionItemProvider {
 
 		// Path 補完
 		let pathKeyMatch = null;
-		if (currentType === 'showPic' || currentType === 'bgm') {
+		if (currentType === 'show picture' || currentType === 'bgm') {
 			const pathKeyRegex = /"path"\s*:\s*"?([^"]*)$/;
 			pathKeyMatch = cursorText.match(pathKeyRegex);
-		} else if (currentType === 'msg') {
+		} else if (currentType === 'show text') {
 			const pathKeyRegex = /"faceImage"\s*:\s*"?([^"]*)$/;
 			pathKeyMatch = cursorText.match(pathKeyRegex);
 		}
@@ -143,7 +138,7 @@ class JteCompletionItemProvider implements vscode.CompletionItemProvider {
 			// プロジェクトのルート
 			const projectRoot = path.resolve(configDir, this.config.projectDir);
 
-			// 今回は showPic => projectRoot/img/pictures など
+			// 今回は show picture => projectRoot/img/pictures など
 			const baseDir = path.join(projectRoot, pathMapping[currentType]);
 
 			// partialPath まで付与して絶対パスを求める

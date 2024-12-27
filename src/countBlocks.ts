@@ -165,7 +165,7 @@ class JteCountBlocksProvider implements vscode.CodeLensProvider, vscode.Disposab
           const presetConfig = config.codeCompletion.json.default.values.preset;
           for (const item of presetConfig) {
             if (item.value === parsedJson.preset && item.description) {
-              blockType = item.description.split(' ')[0];
+              blockType = item.description.split(':')[0];
               break;
             }
           }

@@ -5,6 +5,7 @@ const vscode = require("vscode");
 const fs = require("fs");
 const path = require("path");
 const jteConfig_1 = require("./utils/jteConfig");
+const path_1 = require("./utils/path");
 function registerHoverPreview(context) {
     const hoverProvider = new JteHoverProvider();
     context.subscriptions.push(vscode.languages.registerHoverProvider({ language: 'jte' }, hoverProvider));
@@ -49,12 +50,7 @@ class JteHoverProvider {
         return null;
     }
     resolvePathByType(type, relativePath) {
-        const typeToDirMapping = {
-            showPic: 'img/pictures',
-            msg: 'img/faces',
-            bgm: 'audio/bgm',
-        };
-        const subDir = typeToDirMapping[type];
+        const subDir = path_1.pathMapping[type];
         if (!subDir)
             return null;
         return path.join(this.projectRoot, subDir, relativePath);
