@@ -1,7 +1,4 @@
-# v0.0.6 更新内容
-ブロックカラーの表示
-- msg, showPicなどのコマンド種類に応じてブロックに色付きラインを表示するように
-- `.jte.config.json`のプロパティ`hideBlockColor: false`によりブロックカラーを非表示にできるように
-- `.jte.config.json`のプロパティ`blockColor: {}`によりブロックカラーをカスタマイズできるように
-- プリセットのコマンド種類もブロックカラーに反映するように
-  - `.jte.config.json`で設定した`preset`の`description`を読み取る。
+# v0.0.7 更新内容
+Plugin-v0.1.0での変更に対応するための更新
+
+- msg, showPicなどのコマンド名が変更されたのでそれに合わせて修正
