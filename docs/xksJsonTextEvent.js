@@ -2,7 +2,7 @@
  * @target MZ
  * @plugindesc コマンドリスト管理プラグイン
  * @author xks
- * @version 0.0.2
+ * @version 0.1.0
  *
  * @param defaultMessageParams
  * @text メッセージのデフォルト値
@@ -13,7 +13,7 @@
  * @param defaultPictureParams
  * @text ピクチャのデフォルト値
  * @type struct<PictureDefaults>
- * @default {"id":"1","path":"","origin":"0","x":"0","y":"0","scaleX":"100","scaleY":"100","opacity":"255","blendMode":"0"}
+ * @default {"id":"1","path":"","origin":"左上","howToSpecify":"直接指定","x":"0","y":"0","scaleX":"100","scaleY":"100","opacity":"255","blendMode":"通常"}
  * @desc ピクチャのデフォルト値を設定します。
  *
  * @param presets
@@ -30,27 +30,27 @@
  *
  * 例）
  * --------------------------------
- * {"type": "msg", "name": "男", "bg": "dark"}
+ * {"type": "show text", "name": "男", "bg": "dark"}
  * \C[1]おい
  * \
  * ここは通さないぞ
  *
- * {"type": "showPic", "id": 5, "path": "path/to/picture"}
+ * {"type": "show picture", "id": 5, "path": "path/to/picture"}
  * サンプル画像（この行は無視されるのでメモとして使ってもいい。無くてもいい。）
  *
- * {"type": "msg"}
+ * {"type": "show text"}
  * 男は刀を抜いた。
  *
- * {"type": "delPic", "id": 5}
+ * {"type": "erase picture", "id": 5}
  * --------------------------------
  * 
  * - 各コマンドはJSON形式のヘッダーと、その下の行(または複数行)のテキストで構成されます。
  * - 空行でコマンド同士を区切ります。
  * - 文章中で空行を表現したいときは、バックスラッシュ「\」のみの行を挿入します。
  * - `type` に応じて、内部的にRPGツクールMZ標準のイベントコマンドを実行します。
- *   - "msg": メッセージの表示（"name"があれば名前ウィンドウを表示可能、"bg"が"dark"等ならウィンドウ背景設定）
- *   - "showPic": ピクチャ表示 (id, path, x, y, opacity, blendMode 等をパラメータにできる)
- *   - "delPic": ピクチャ消去 (id指定)
+ *   - "show text": メッセージの表示（"name"があれば名前ウィンドウを表示可能、"bg"が"dark"等ならウィンドウ背景設定）
+ *   - "show picture": ピクチャ表示 (id, path, x, y, opacity, blendMode 等をパラメータにできる)
+ *   - "erase picture": ピクチャ消去 (id指定)
  * これらはRPGツクールMZのイベントコマンドを再現します。
  * 
  * --------------------------------
@@ -60,7 +60,6 @@
  *
  * 2. 「次のコマンドを実行」を呼ぶたびに、リスト内の次のコマンドが実行されます。 
  *    メッセージならメッセージウィンドウ表示、ピクチャならピクチャ表示などを行い、
- *    イベントコマンドとしての挙動(決定待ちやクリック待ち)も再現します。
  *
  * 3. 「実行状態のリセット」を呼ぶと、特定のリストの進行度を最初に戻します。
  *
@@ -71,10 +70,10 @@
  * ※Jsonは１行で記述する必要があります。
  * 
  * {
- *  "type": "msg", // 文章の表示
+ *  "type": "show text", // (もしくは"文章の表示"でも可)
  *  "name": "男",  // 名前ウィンドウに表示する名前
  *  "bg": "dark", // 背景タイプ (window, dark, transparent)
- *  "faceImage": "Actor1", // 顔グラフィックファイル名
+ *  "faceImage": "Actor1.png", // 顔グラフィックファイル名
  *  "faceIndex": 0, // 顔グラフィックインデックス
  *  "position": 2 // 表示位置 (0: 上, 1: 中, 2: 下)
  * }
@@ -82,31 +81,29 @@
  * 改行もできる。制御文字も使える。
  *
  * {
- *  "type": "showPic", // ピクチャ表示
+ *  "type": "show picture", // (もしくは"ピクチャの表示"でも可)
  *  "id": 5, // ピクチャID
  *  "path": "path/to/picture", // ピクチャファイルパス
- *  "origin": 0, // 原点 (0: 左上, 1: 中心)
+ *  "origin": 左上, // 原点 (左上, 中心)
+ *  "howToSpecify": 直接指定, // 座標指定方法 (直接指定, 変数で指定)
  *  "x": 0, // X座標
  *  "y": 0, // Y座標
  *  "scaleX": 100, // Xスケール
  *  "scaleY": 100, // Yスケール
  *  "opacity": 255, // 不透明度
- *  "blendMode": 0 // 合成方法 (0: 通常, 1: 加算, 2: 減算, 3: 乗算)
+ *  "blendMode": 通常 // 合成方法 (通常, 加算, 乗算, スクリーン)
  * }
  * 
  * {
- *  "type": "delPic", // ピクチャ削除
+ *  "type": "erase picture", // (もしくは"ピクチャの消去"でも可)
  *  "id": 5 // ピクチャID
- * }
- * 
- * {
- *  "type": "label", // ラベル（ツクール標準のラベルとは独立）。「次のコマンドを実行」では無視されます。
- *  "name": "ラベル名" // ラベル名
  * }
  * 
  * {}
  * 空Jsonに続くテキストは無視されるため、コメントアウトとして利用できます。
  * 
+ * 全タイプ共通のパラメータ:
+ * - "mark": "任意の数値/文字列" // 特定のmarkまで実行したり、ジャンプするためのマーク
  * ---
  * 
  * プリセット機能:
@@ -115,7 +112,7 @@
  * 
  * 例）
  * プリセット名: "主人公"
- * プリセットパラメータ: {"type": "msg", "bg":"dark","position":"2","name":"主人公","faceImage":"Actor1","faceIndex":"0"}
+ * プリセットパラメータ: {"type": "show text", "bg":"dark","position":"2","name":"主人公","faceImage":"Actor1","faceIndex":"0"}
  * 
  * {"preset": "主人公", "name": "主人公（闇）"}
  * ここにメッセージ内容を記述。
@@ -153,6 +150,12 @@
  * @text リストID
  * @desc 対象のリストID
  * @type string
+ * 
+ * @arg executeCount
+ * @text 実行コマンド数
+ * @desc 一度に実行するコマンド数（0以下でリストの残り全てを実行）
+ * @type number
+ * @default 1
  *
  * @command ResetProgress
  * @text 実行状態のリセット
@@ -184,20 +187,6 @@
  * @arg index
  * @text インデックス
  * @desc 次に実行したいコマンドのインデックス（1から始まる）。負数でリストの末尾からのインデックス指定も可能。
- * @type string
- * 
- * @command JumpToLabel
- * @text 指定ラベルへジャンプ
- * @desc 指定のリストIDのラベルにジャンプします。ツクール標準のラベルとは独立しています。
- * 
- * @arg listId
- * @text リストID
- * @desc 対象のリストID
- * @type string
- * 
- * @arg label
- * @text ラベル
- * @desc ジャンプするラベル（ツクール標準のラベルとは独立）
  * @type string
  * 
  * @command GetIndex
@@ -272,18 +261,27 @@
  * @text 原点
  * @type select
  * @option 左上
- * @value 0
+ * @value 左上
  * @option 中心
- * @value 1
- * @default 0
+ * @value 中心
+ * @default 左上
+ * 
+ * @param howToSpecify
+ * @text 座標指定方法
+ * @type select
+ * @option 直接指定
+ * @value 直接指定
+ * @option 変数で指定
+ * @value 変数で指定
+ * @default 直接指定
  *
  * @param x
- * @text X座標
+ * @text X座標（変数で指定時は変数番号）
  * @type number
  * @default 0
  *
  * @param y
- * @text Y座標
+ * @text Y座標（変数で指定時は変数番号）
  * @type number
  * @default 0
  *
@@ -306,14 +304,14 @@
  * @text 合成方法
  * @type select
  * @option 通常
- * @value 0
+ * @value 通常
  * @option 加算
- * @value 1
- * @option 減算
- * @value 2
+ * @value 加算
  * @option 乗算
- * @value 3
- * @default 0
+ * @value 乗算
+ * @option スクリーン
+ * @value スクリーン
+ * @default 通常
  */
 
 /*~struct~Preset:
@@ -347,7 +345,6 @@
 
     function applyPresetAndDefaults(json, defaults) {
         let baseParams = {};
-        console.log(presets, json.preset);
         if (json.preset && presets[json.preset]) {
             baseParams = presets[json.preset];
         }
@@ -357,64 +354,80 @@
     const commandLists = {};
 
     //-----------------------------------------------------------------------------
-    // コマンド実行処理
+    // JSONコード変換処理
     //-----------------------------------------------------------------------------
-    function executeCommand(cmd) {
+    function jsonToCode(cmd, eventId, codeTemplate) {
         const type = cmd.json.type;
-        switch (type) {
-            case "msg":
-                return executeMessageCommand(cmd.json, cmd.text);
-            case "showPic":
-                return executeShowPicCommand(cmd.json);
-            case "delPic":
-                return executeDelPicCommand(cmd.json);
-            default:
-                console.warn(`未知のコマンドタイプ: ${type}`);
-        }
+        if (type === "show text" || type === "文章の表示") {
+            return makeShowTextCode(cmd.json, cmd.text, codeTemplate);
+        } else if (type === "show picture" || type === "ピクチャの表示") {
+            return makeShowPictureCode(cmd.json, codeTemplate);
+        } else if (type === "erase picture" || type === "ピクチャの消去") {
+            return makeErasePictureCode(cmd.json, codeTemplate);
+        } else {
+            console.warn(`未知のコマンドタイプ: ${type}`);
+        }        
     }
 
-    function executeMessageCommand(json, text) {
+    function makeShowTextCode(json, text, codeTemplate) {
         const settings = applyPresetAndDefaults(json, defaultMessageParams);
         const { name, bg, faceImage, faceIndex, position } = settings;
-
-        $gameMessage.clear();
-        $gameMessage.setBackground(bg === "dark" ? 1 : bg === "transparent" ? 2 : 0);
-        $gameMessage.setSpeakerName(name);
-        // faceImageの拡張子を削除
+        
+        const background = bg === "dark" ? 1 : bg === "transparent" ? 2 : 0;
         const faceImageBaseName = faceImage.replace(/\.[^/.]+$/, "");
-        $gameMessage.setFaceImage(faceImageBaseName, parseInt(faceIndex));
-        $gameMessage.setPositionType(parseInt(position));
+
+        const command101 = JSON.parse(JSON.stringify(codeTemplate));
+        command101.code = 101;
+        command101.parameters = [faceImageBaseName, parseInt(faceIndex), background, parseInt(position), name];
+        command101.isJsonTextEventPlugin = true;
 
         const lines = (text || "").split('\n');
-        lines.forEach(line => $gameMessage.add(line));
+        const command401s = lines.map(line => {
+            const command401 = JSON.parse(JSON.stringify(codeTemplate));
+            command401.code = 401;
+            command401.parameters = [line];
+            command401.isJsonTextEventPlugin = true;
+            return command401;
+        });
 
-        $gameMap._interpreter.setWaitMode('message');
+        return [command101, ...command401s];
     }
     
-    function executeShowPicCommand(json) {
+    function makeShowPictureCode(json, codeTemplate) {
         const settings = applyPresetAndDefaults(json, defaultPictureParams);
-        const { id, path, origin, x, y, scaleX, scaleY, opacity, blendMode } = settings;
+        const { id, path, origin, howToSpecify, x, y, scaleX, scaleY, opacity, blendMode } = settings;
         const basePath = path.replace(/\.[^/.]+$/, "");
-        $gameScreen.showPicture(
-            parseInt(id),
-            basePath,
-            parseInt(origin),
-            parseInt(x),
-            parseInt(y),
-            parseInt(scaleX),
-            parseInt(scaleY),
-            parseInt(opacity),
-            parseInt(blendMode)
-        );
+        
+        const command231 = JSON.parse(JSON.stringify(codeTemplate));
+        command231.code = 231;
+        command231.parameters = [
+            parseInt(id), 
+            basePath, 
+            origin === "中心" ? 1 : 0,
+            howToSpecify === "変数で指定"? 1 : 0,
+            parseInt(x), 
+            parseInt(y), 
+            parseInt(scaleX), 
+            parseInt(scaleY), 
+            parseInt(opacity), 
+            blendMode === "加算" ? 1 : blendMode === "乗算" ? 2 : blendMode === "スクリーン" ? 3 : 0
+        ];
+        command231.isJsonTextEventPlugin = true;
+
+        return command231;
     }
 
-    function executeDelPicCommand(json) {
+    function makeErasePictureCode(json, codeTemplate) {
         const settings = applyPresetAndDefaults(json, defaultPictureParams);
         const { id } = settings;
 
-        $gameScreen.erasePicture(parseInt(id));
-    }
+        const command235 = JSON.parse(JSON.stringify(codeTemplate));
+        command235.code = 235;
+        command235.parameters = [parseInt(id)];
+        command235.isJsonTextEventPlugin = true;
 
+        return command235;
+    }
     
     //-----------------------------------------------------------------------------
     // コマンドリスト解析処理
@@ -436,20 +449,16 @@
             if (currentJson) {
                 if (Object.keys(currentJson).length > 0) {
                     const type = currentJson.type;
-                    if (type === "label") {
-                        console.log("ラベル：", currentJson.name);
-                    } else {
-                        commands.push({
-                            json: applyPresetAndDefaults(currentJson, {}),
-                            text: currentText.join("\n"),
-                        });
-                        count++;
-                        console.log(
-                            `No.${count} command`,
-                            currentJson,
-                            currentText.join("\n")
-                        );
-                    }
+                    commands.push({
+                        json: applyPresetAndDefaults(currentJson, {}),
+                        text: currentText.join("\n"),
+                    });
+                    count++;
+                    console.log(
+                        `No.${count} command`,
+                        currentJson,
+                        currentText.join("\n")
+                    );
                 } else {
                     console.warn("コメントアウト：", currentText.join("\n"));
                 }
@@ -474,7 +483,7 @@
                     currentJson = JSON.parse(line);
                 } catch (e) {
                     console.error("コマンドリスト解析失敗: JSONパースエラー", e, line);
-                    currentJson = {type:"msg"}; // fallback
+                    currentJson = {type:"show text"}; // fallback
                     currentText.push("\\C[18]JSONパースエラー");
                 }
             } else {
@@ -501,20 +510,46 @@
         };
     });
 
-    PluginManager.registerCommand(pluginName, "ExecuteNext", args => {
+    PluginManager.registerCommand(pluginName, "ExecuteNext", function (args) {
+        let executeCount = Number(args.executeCount);
         const listId = args.listId;
-        if (!commandLists[listId]) return;
-        const listData = commandLists[listId];
-        const idx = listData.index;
-        if (idx >= listData.commands.length) {
-            // もう実行するコマンドがない
+
+        // リストを取得（リストが存在しない場合はエラー）
+        if (!commandLists[listId]) {
+            console.error(`commandList not found: ${listId}`);
             return;
         }
+        const listData = commandLists[listId];
 
-        const cmd = listData.commands[idx];
-        listData.index++;
+        // 実行コマンド数が0以下の場合はリストの残り全てを実行する
+        if (executeCount <= 0) {
+            executeCount = listData.commands.length - listData.index;
+        }
 
-        executeCommand(cmd)
+        // 挿入する実行コマンド（コード）を生成
+        const interpreterIndex = this._index;
+        const eventId = this._eventId;
+        const cmdTemplate = this._list[interpreterIndex];
+        let commands = [];
+        for (let i = 0; i < executeCount; i++) {
+            if (listData.index >= listData.commands.length) break;
+            commands = commands.concat(jsonToCode(listData.commands[listData.index], eventId, cmdTemplate));
+            listData.index++;
+        }
+        
+        // コマンド挿入のための準備
+        let i = interpreterIndex+1;
+        let insertIndex = 0
+        const newInterpreterList = [];
+        while (i < this._list.length) {
+            // 357と657はワンセットになるため、657の終わりをinsertIndexとする
+            if (this._list[i].code !== 657 && insertIndex === 0) insertIndex = i;
+            // 2回目以降は$gameMap._interpreter._listが変更済みなので、isJsonTextEventPluginは除外する
+            if (insertIndex !== 0 && !this._list[i].isJsonTextEventPlugin) newInterpreterList.push(this._list[i]);
+            i++;
+        }
+        // コマンドを挿入
+        this._list = this._list.slice(0, insertIndex).concat(commands).concat(newInterpreterList);
     });
 
     PluginManager.registerCommand(pluginName, "ResetProgress", args => {
@@ -553,24 +588,6 @@
             console.error(`Invalid index: ${index} (resolved as ${resolvedIndex}) for list ${listId}`);
         }
     });
-    
-
-    PluginManager.registerCommand(pluginName, "JumpToLabel", (args) => {
-        const listId = args.listId;
-        const label = args.label;
-        if (commandLists[listId]) {
-            const commands = commandLists[listId].commands;
-            const index = commands.findIndex((cmd) => cmd.json.type === "label" && cmd.json.name === label);
-            if (index !== -1) {
-                commandLists[listId].index = index;
-                console.log(`Jumped to label "${label}" in list ${listId}`);
-            } else {
-                console.error(`Label not found: ${label}`);
-            }
-        } else {
-            console.error(`List not found: ${listId}`);
-        }
-    });
 
     PluginManager.registerCommand(pluginName, "GetIndex", (args) => {
         const listId = args.listId;
@@ -584,3 +601,4 @@
         }
     });
 })();
+
