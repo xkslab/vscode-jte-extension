@@ -132,6 +132,10 @@ class JteCountBlocksProvider implements vscode.CodeLensProvider, vscode.Disposab
           i++;
           continue;
         }
+        let decorationText = "";
+        if (parsedJson.mark) {
+          decorationText = `🚩${parsedJson.mark}`;
+        }
 
         // ブロック開始行
         const startLine = i;
@@ -153,7 +157,7 @@ class JteCountBlocksProvider implements vscode.CodeLensProvider, vscode.Disposab
               new vscode.Position(startLine, 0),
               new vscode.Position(startLine, 0)
             ),
-            { title: `ブロック番号: ${blockNumber++}`, command: '' }
+            { title: `ブロック番号: ${blockNumber++}　${decorationText}`, command: '' }
           )
         );
 

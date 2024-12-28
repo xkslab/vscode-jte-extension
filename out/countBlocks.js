@@ -117,6 +117,10 @@ class JteCountBlocksProvider {
                     i++;
                     continue;
                 }
+                let decorationText = "";
+                if (parsedJson.mark) {
+                    decorationText = `🚩${parsedJson.mark}`;
+                }
                 // ブロック開始行
                 const startLine = i;
                 // 空行 or EOF まで読み進める
@@ -130,7 +134,7 @@ class JteCountBlocksProvider {
                 }
                 const endLine = j - 1 >= startLine ? j - 1 : startLine;
                 // CodeLens は JSON行(=ブロック開始行)にだけ付与
-                lenses.push(new vscode.CodeLens(new vscode.Range(new vscode.Position(startLine, 0), new vscode.Position(startLine, 0)), { title: `ブロック番号: ${blockNumber++}`, command: '' }));
+                lenses.push(new vscode.CodeLens(new vscode.Range(new vscode.Position(startLine, 0), new vscode.Position(startLine, 0)), { title: `ブロック番号: ${blockNumber++}　${decorationText}`, command: '' }));
                 // JSON の type
                 let blockType = (_a = parsedJson.type) !== null && _a !== void 0 ? _a : 'default';
                 // preset があれば上書き
