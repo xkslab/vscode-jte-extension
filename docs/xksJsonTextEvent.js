@@ -2,7 +2,7 @@
  * @target MZ
  * @plugindesc コマンドリスト管理プラグイン
  * @author xks
- * @version 0.1.0
+ * @version 0.1.1
  *
  * @param defaultMessageParams
  * @text メッセージのデフォルト値
@@ -156,7 +156,33 @@
  * @desc 一度に実行するコマンド数（0以下でリストの残り全てを実行）
  * @type number
  * @default 1
- *
+ * 
+ * @command ExecuteUntilMark
+ * @text マークまで実行
+ * @desc 指定のリストIDのマークまでのコマンドを実行します。
+ * 
+ * @arg listId
+ * @text リストID
+ * @desc 対象のリストID
+ * @type string
+ * 
+ * @arg mark
+ * @text マーク
+ * @desc 実行を終了するマーク
+ * @type string
+ * 
+ * @arg inclusive
+ * @text マークを含む
+ * @desc マークのコマンドを実行するかどうか
+ * @type boolean
+ * @default false
+ * 
+ * @arg skipMarkAtNextCommand
+ * @text 直後マークをスキップ
+ * @desc 直後がマークコマンドのとき、このマークで終了せずに次のマークまで実行。（マークを含むOFFと相性がいいです。）
+ * @type boolean
+ * @default true
+ * 
  * @command ResetProgress
  * @text 実行状態のリセット
  * @desc 指定のリストの進行度を最初に戻します。
@@ -188,6 +214,40 @@
  * @text インデックス
  * @desc 次に実行したいコマンドのインデックス（1から始まる）。負数でリストの末尾からのインデックス指定も可能。
  * @type string
+ * 
+ * @command JumpToMark
+ * @text 指定マークへジャンプ
+ * @desc 現在のインデックスから次に出現する指定のマークの位置までジャンプします。
+ * 
+ * @arg listId
+ * @text リストID
+ * @desc 対象のリストID
+ * @type string
+ * 
+ * @arg mark
+ * @text マーク
+ * @desc ジャンプ先のマーク
+ * @type string
+ * 
+ * @arg position
+ * @text ジャンプ位置
+ * @desc マークの前か後ろのどちらにジャンプするか。前なら次に実行されるコマンドがマークになります。
+ * @type select
+ * @option マークの前
+ * @value マークの前
+ * @option マークの後
+ * @value マークの後
+ * @default マークの前
+ * 
+ * @arg direction
+ * @text 検索の方向
+ * @desc 現在のインデックスからの検索方向
+ * @type select
+ * @option 末尾に向かって検索
+ * @value 末尾に向かって検索
+ * @option 先頭に向かって検索
+ * @value 先頭に向かって検索
+ * @default 末尾に向かって検索
  * 
  * @command GetIndex
  * @text インデックス取得
@@ -329,6 +389,9 @@
 (() => {
     const pluginName = "xksJsonTextEvent";
 
+    // -----------------------------------------------------------------------------
+    // プラグインパラメータの取得・初期設定
+    // -----------------------------------------------------------------------------
     const params = PluginManager.parameters(pluginName);
     const defaultMessageParams = JSON.parse(params.defaultMessageParams || "{}");
     const defaultPictureParams = JSON.parse(params.defaultPictureParams || "{}");
@@ -354,6 +417,71 @@
     const commandLists = {};
 
     //-----------------------------------------------------------------------------
+    // Json Text Event 解析処理
+    //-----------------------------------------------------------------------------
+    function parseCommandList(content) {
+        const text = content
+            .replace(/\\n/g, "\n")
+            .replace(/\\"/g, '"')
+            .replace(/\\'/g, "'")
+            .replace(/\\\\/g, "\\")
+            .slice(1, -1);
+        const lines = text.split('\n');
+        const commands = [];
+        let currentJson = null;
+        let currentText = [];
+        let count = 0;
+        
+        function pushCommandIfNeeded() {
+            if (currentJson) {
+                if (Object.keys(currentJson).length > 0) {
+                    const type = currentJson.type;
+                    commands.push({
+                        json: applyPresetAndDefaults(currentJson, {}),
+                        text: currentText.join("\n"),
+                    });
+                    count++;
+                    console.log(
+                        `[xksJsonTextEvent.PushCommandIfNeeded] No.${count} command`,
+                        currentJson,
+                        currentText.join("\n")
+                    );
+                }
+            }
+            currentJson = null;
+            currentText = [];
+        }
+
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trimEnd();
+            if (line === '') {
+                pushCommandIfNeeded();
+                continue;
+            }
+            if (line === '\\'){
+                line = '';
+            }
+
+            // 最初の行がJSONと仮定
+            if (!currentJson) {
+                try {
+                    currentJson = JSON.parse(line);
+                } catch (e) {
+                    console.error("[xksJsonTextEvent.pushCommandIfNeeded] コマンドリスト解析失敗: JSONパースエラー", e, line);
+                    currentJson = {type:"show text"}; // fallback
+                    currentText.push("\\C[18]JSONパースエラー");
+                }
+            } else {
+                currentText.push(line);
+            }
+        }
+
+        pushCommandIfNeeded();
+
+        return commands;
+    }
+
+    //-----------------------------------------------------------------------------
     // JSONコード変換処理
     //-----------------------------------------------------------------------------
     function jsonToCode(cmd, eventId, codeTemplate) {
@@ -365,7 +493,7 @@
         } else if (type === "erase picture" || type === "ピクチャの消去") {
             return makeErasePictureCode(cmd.json, codeTemplate);
         } else {
-            console.warn(`未知のコマンドタイプ: ${type}`);
+            console.warn(`[xksJsonTextEvent.jsonToCode] 未知のコマンドタイプ: ${type}`);
         }        
     }
 
@@ -428,72 +556,66 @@
 
         return command235;
     }
-    
-    //-----------------------------------------------------------------------------
-    // コマンドリスト解析処理
-    //-----------------------------------------------------------------------------
-    function parseCommandList(content) {
-        const text = content
-            .replace(/\\n/g, "\n")
-            .replace(/\\"/g, '"')
-            .replace(/\\'/g, "'")
-            .replace(/\\\\/g, "\\")
-            .slice(1, -1);
-        const lines = text.split('\n');
-        const commands = [];
-        let currentJson = null;
-        let currentText = [];
+
+    // -----------------------------------------------------------------------------
+    // インタプリタへのコマンド挿入処理
+    // -----------------------------------------------------------------------------
+
+    function executeCommands(listId, stopConditionFn, inclusive, maxCommands) {
+        if (!commandLists[listId]) {
+            console.error(`[xksJsonTextEvent.executeCommands] commandList not found: ${listId}`);
+            return [];
+        }
+
+        const listData = commandLists[listId];
+        const commandsToExecute = [];
         let count = 0;
-        
-        function pushCommandIfNeeded() {
-            if (currentJson) {
-                if (Object.keys(currentJson).length > 0) {
-                    const type = currentJson.type;
-                    commands.push({
-                        json: applyPresetAndDefaults(currentJson, {}),
-                        text: currentText.join("\n"),
-                    });
-                    count++;
-                    console.log(
-                        `No.${count} command`,
-                        currentJson,
-                        currentText.join("\n")
-                    );
-                } else {
-                    console.warn("コメントアウト：", currentText.join("\n"));
-                }
-            }
-            currentJson = null;
-            currentText = [];
+
+        // maxCommandsが0以下の場合はリストの残り全てを実行
+        if (maxCommands <= 0) {
+            maxCommands = listData.commands.length - listData.index;
         }
 
-        for (let i = 0; i < lines.length; i++) {
-            let line = lines[i].trimEnd();
-            if (line === '') {
-                pushCommandIfNeeded();
-                continue;
-            }
-            if (line === '\\'){
-                line = '';
+        while (listData.index < listData.commands.length && count < maxCommands) {
+            const cmd = listData.commands[listData.index];
+
+            if (stopConditionFn(cmd, commandsToExecute.length)) {
+                if (inclusive) {
+                    commandsToExecute.push(cmd);
+                    listData.index++;
+                }
+                break;
             }
 
-            // 最初の行がJSONと仮定
-            if (!currentJson) {
-                try {
-                    currentJson = JSON.parse(line);
-                } catch (e) {
-                    console.error("コマンドリスト解析失敗: JSONパースエラー", e, line);
-                    currentJson = {type:"show text"}; // fallback
-                    currentText.push("\\C[18]JSONパースエラー");
-                }
-            } else {
-                currentText.push(line);
-            }
+            commandsToExecute.push(cmd);
+            listData.index++;
+            count++;
         }
 
-        pushCommandIfNeeded();
+        if (listData.index >= listData.commands.length && commandsToExecute.length === 0) {
+            console.warn(`[xksJsonTextEvent.executeCommands] No commands executed. List might be at the end.`);
+        }
 
-        return commands;
+        return commandsToExecute;
+    }
+
+    function convertCommandsToInterpreterList(commands, eventId, codeTemplate) {
+        return commands.flatMap(cmd => jsonToCode(cmd, eventId, codeTemplate));
+    }
+
+    function insertCommandsIntoInterpreter(interpreter, commands) {
+        let i = interpreter._index+1;
+        let insertIndex = 0
+        const newInterpreterList = [];
+        while (i < interpreter._list.length) {
+            // 357と657はワンセットになるため、657の終わりをinsertIndexとする
+            if (interpreter._list[i].code !== 657 && insertIndex === 0) insertIndex = i;
+            // 2回目以降は$gameMap._interpreter._listが変更済みなので、isJsonTextEventPluginは除外する
+            if (insertIndex !== 0 && !interpreter._list[i].isJsonTextEventPlugin) newInterpreterList.push(interpreter._list[i]);
+            i++;
+        }
+        // コマンドを挿入
+        interpreter._list = interpreter._list.slice(0, insertIndex).concat(commands).concat(newInterpreterList);
     }
 
     //-----------------------------------------------------------------------------
@@ -511,45 +633,50 @@
     });
 
     PluginManager.registerCommand(pluginName, "ExecuteNext", function (args) {
-        let executeCount = Number(args.executeCount);
         const listId = args.listId;
+        const executeCount = parseInt(args.executeCount, 10);
 
-        // リストを取得（リストが存在しない場合はエラー）
-        if (!commandLists[listId]) {
-            console.error(`commandList not found: ${listId}`);
-            return;
-        }
-        const listData = commandLists[listId];
-
-        // 実行コマンド数が0以下の場合はリストの残り全てを実行する
-        if (executeCount <= 0) {
-            executeCount = listData.commands.length - listData.index;
-        }
-
-        // 挿入する実行コマンド（コード）を生成
-        const interpreterIndex = this._index;
+        const commands = executeCommands(listId, () => false, false, executeCount);
         const eventId = this._eventId;
+        const interpreterIndex = this._index;
         const cmdTemplate = this._list[interpreterIndex];
-        let commands = [];
-        for (let i = 0; i < executeCount; i++) {
-            if (listData.index >= listData.commands.length) break;
-            commands = commands.concat(jsonToCode(listData.commands[listData.index], eventId, cmdTemplate));
-            listData.index++;
+
+        const newCommands = convertCommandsToInterpreterList(commands, eventId, cmdTemplate);
+        insertCommandsIntoInterpreter(this, newCommands);
+    });
+
+    PluginManager.registerCommand(pluginName, "ExecuteUntilMark", function (args) {
+        const listId = args.listId;
+        const mark = args.mark;
+        const inclusive = args.inclusive === "true";
+        const skipMarkAtNextCommand = args.skipMarkAtNextCommand === "true";
+
+        let markCondition;
+        if (skipMarkAtNextCommand) {
+            // 直後がマークコマンドのとき、このマークで終了せずに次のマークまで実行
+            markCondition = (cmd, commandCount) => {
+                if (commandCount === 0) {
+                    return false;
+                }
+                return cmd.json.mark === mark;
+            }
+        } else {
+            markCondition = (cmd, commandCount) => cmd.json.mark === mark;
         }
-        
-        // コマンド挿入のための準備
-        let i = interpreterIndex+1;
-        let insertIndex = 0
-        const newInterpreterList = [];
-        while (i < this._list.length) {
-            // 357と657はワンセットになるため、657の終わりをinsertIndexとする
-            if (this._list[i].code !== 657 && insertIndex === 0) insertIndex = i;
-            // 2回目以降は$gameMap._interpreter._listが変更済みなので、isJsonTextEventPluginは除外する
-            if (insertIndex !== 0 && !this._list[i].isJsonTextEventPlugin) newInterpreterList.push(this._list[i]);
-            i++;
+
+        const commands = executeCommands(listId, markCondition, inclusive, 0);
+
+        if (commands.length === 0) {
+            console.warn("[xksJsonTextEvent.ExecuteUntilMark] commands.length === 0");
         }
-        // コマンドを挿入
-        this._list = this._list.slice(0, insertIndex).concat(commands).concat(newInterpreterList);
+
+        const eventId = this._eventId;
+        const interpreterIndex = this._index;
+        const cmdTemplate = this._list[interpreterIndex];
+
+        const newCommands = convertCommandsToInterpreterList(commands, eventId, cmdTemplate);
+
+        insertCommandsIntoInterpreter(this, newCommands);
     });
 
     PluginManager.registerCommand(pluginName, "ResetProgress", args => {
@@ -568,7 +695,7 @@
         const listId = args.listId;
         const index = parseInt(args.index, 10);
         if (!commandLists[listId]) {
-            console.error(`List not found: ${listId}`);
+            console.error(`[xksJsonTextEvent.JumpToIndex] List not found: ${listId}`);
             return;
         }
     
@@ -583,21 +710,66 @@
     
         if (resolvedIndex >= 0 && resolvedIndex < listLength) {
             commandLists[listId].index = resolvedIndex;
-            console.log(`Jumped to index ${resolvedIndex} in list ${listId}`);
         } else {
-            console.error(`Invalid index: ${index} (resolved as ${resolvedIndex}) for list ${listId}`);
+            console.error(`[xksJsonTextEvent.JumpToIndex] Invalid index: ${index} (resolved as ${resolvedIndex}) for list ${listId}`);
         }
     });
 
+    PluginManager.registerCommand(pluginName, "JumpToMark", (args) => {
+        const listId = args.listId;
+        const mark = args.mark;
+        const position = args.position || "マークの前";
+        const direction = args.direction || "末尾に向かって検索";
+    
+        if (!commandLists[listId]) {
+            console.error(`[xksJsonTextEvent.JumpToMark] List not found: ${listId}`);
+            return;
+        }
+    
+        const listData = commandLists[listId];
+        const commands = listData.commands;
+        const currentIndex = listData.index;
+    
+        let foundIndex = -1;
+        if (direction === "末尾に向かって検索") {
+            // 現在のインデックスから末尾方向に検索
+            for (let i = currentIndex; i < commands.length; i++) {
+                if (commands[i].json.mark === mark) {
+                    foundIndex = i;
+                    break;
+                }
+            }
+        } else if (direction === "先頭に向かって検索") {
+            // 現在のインデックスから先頭方向に検索
+            for (let i = currentIndex; i >= 0; i--) {
+                if (commands[i].json.mark === mark) {
+                    foundIndex = i;
+                    break;
+                }
+            }
+        }
+    
+        if (foundIndex >= 0) {
+            if (position === "マークの前") {
+                listData.index = foundIndex;
+            } else if (position === "マークの後") {
+                listData.index = foundIndex + 1;
+            }
+            console.log(`[xksJsonTextEvent.JumpToMark] Jumped to index ${listData.index} for mark: ${mark}`);
+        } else {
+            console.error(`[xksJsonTextEvent.JumpToMark] Mark not found: ${mark}`);
+        }
+    });
+    
     PluginManager.registerCommand(pluginName, "GetIndex", (args) => {
         const listId = args.listId;
         const variableId = parseInt(args.variableId, 10);
         if (commandLists[listId] && variableId > 0) {
             const index = commandLists[listId].index;
             $gameVariables.setValue(variableId, index);
-            console.log(`Current index of list ${listId} saved to variable ${variableId}: ${index}`);
+            console.log(`[xksJsonTextEvent.GetIndex] Current index of list ${listId} saved to variable ${variableId}: ${index}`);
         } else {
-            console.error(`Invalid list or variable ID: ${listId}, ${variableId}`);
+            console.error(`[xksJsonTextEvent.GetIndex] Invalid list or variable ID: ${listId}, ${variableId}`);
         }
     });
 })();
