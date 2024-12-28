@@ -25,7 +25,8 @@ exports.defaultSchema = {
             { key: "bg", description: "背景" },
             { key: "position", description: "ウィンドウ位置" },
             { key: "faceImage", description: "顔" },
-            { key: "faceIndex", description: "表示する顔グラフィックのインデックス。" }
+            { key: "faceIndex", description: "表示する顔グラフィックのインデックス。" },
+            { key: "mark", description: "マーク" },
         ],
         values: {
             bg: [
@@ -60,7 +61,8 @@ exports.defaultSchema = {
             { key: "scaleY", description: "拡大率 高さ" },
             { key: "blendMode", description: "合成方法" },
             { key: "opacity", description: "不透明度" },
-            { key: "origin", description: "原点" }
+            { key: "origin", description: "原点" },
+            { key: "mark", description: "マーク" }
         ],
         values: {
             id: [
@@ -82,7 +84,8 @@ exports.defaultSchema = {
     },
     "erase picture": {
         properties: [
-            { key: "id", description: "ピクチャ番号" }
+            { key: "id", description: "ピクチャ番号" },
+            { key: "mark", description: "マーク" }
         ],
         values: {
             id: [
