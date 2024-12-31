@@ -486,15 +486,17 @@
     //-----------------------------------------------------------------------------
     function jsonToCode(cmd, eventId, codeTemplate) {
         const type = cmd.json.type;
-        if (type === "show text" || type === "文章の表示") {
-            return makeShowTextCode(cmd.json, cmd.text, codeTemplate);
-        } else if (type === "show picture" || type === "ピクチャの表示") {
-            return makeShowPictureCode(cmd.json, codeTemplate);
-        } else if (type === "erase picture" || type === "ピクチャの消去") {
-            return makeErasePictureCode(cmd.json, codeTemplate);
-        } else {
-            console.warn(`[xksJsonTextEvent.jsonToCode] 未知のコマンドタイプ: ${type}`);
-        }        
+        switch (type) {
+            case "show text":
+                return makeCodeForShowText(cmd.json, cmd.text, codeTemplate);
+            case "show picture":
+                return makeCodeForShowPicture(cmd.json, codeTemplate);
+            case "erase picture":
+                return makeCodeForErasePicture(cmd.json, codeTemplate);
+            default:
+                console.warn(`[xksJsonTextEvent.jsonToCode] 未知のコマンドタイプ: ${type}`);
+                return [];
+        }
     }
 
     function makeShowTextCode(json, text, codeTemplate) {
