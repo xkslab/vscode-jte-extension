@@ -13,8 +13,8 @@
   },
   "devDependencies": {
     "@types/node": "^16.18.0",
-    "typescript": "^4.9.5",
-    "vscode": "^1.96.0"
+    "@types/vscode": "^1.96.0",
+    "typescript": "^4.9.5"
   },
   "categories": [
     "Programming Languages"
@@ -25,22 +25,31 @@
     "onSaveTextDocument"
   ],
   "contributes": {
-    "languages": [{
-      "id": "jte",
-      "aliases": ["JTE", "jte"],
-      "extensions": [".jte"],
-      "configuration": "./language-configuration.json"
-    }],
-    "grammars": [{
-      "language": "jte",
-      "scopeName": "source.jte",
-      "path": "./syntaxes/jte.tmLanguage.json"
-    }],
-		"codeLens": [
-			{
-				"language": "jte"
-			}
-		],
+    "languages": [
+      {
+        "id": "jte",
+        "aliases": [
+          "JTE",
+          "jte"
+        ],
+        "extensions": [
+          ".jte"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "jte",
+        "scopeName": "source.jte",
+        "path": "./syntaxes/jte.tmLanguage.json"
+      }
+    ],
+    "codeLens": [
+      {
+        "language": "jte"
+      }
+    ],
     "keybindings": [
       {
         "command": "jte.toggleComment",
@@ -49,5 +58,5 @@
       }
     ]
   },
-  	"main": "./out/extension.js"
+  "main": "./out/extension.js"
 }

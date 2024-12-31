@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerSaveNotification = registerSaveNotification;
+exports.registerSaveNotification = void 0;
 const vscode = require("vscode");
 function registerSaveNotification(context) {
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((document) => {
@@ -9,3 +9,4 @@ function registerSaveNotification(context) {
         }
     }));
 }
+exports.registerSaveNotification = registerSaveNotification;

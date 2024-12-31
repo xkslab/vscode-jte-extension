@@ -9,13 +9,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerToggleComment = registerToggleComment;
+exports.registerToggleComment = void 0;
 const vscode = require("vscode");
 function registerToggleComment(context) {
     // コメントアウトのトグルコマンドを登録
     const toggleCommentCommand = vscode.commands.registerCommand('jte.toggleComment', JteToggleComment);
     context.subscriptions.push(toggleCommentCommand);
 }
+exports.registerToggleComment = registerToggleComment;
 /**
  * コメントアウトのトグル処理
  */

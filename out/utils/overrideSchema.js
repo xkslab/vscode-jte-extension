@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.overrideSchema = overrideSchema;
+exports.overrideSchema = void 0;
 const defaultConfig_1 = require("./defaultConfig");
 /**
  * デフォルトのスキーマをユーザ設定でオーバーライド
@@ -14,6 +14,7 @@ function overrideSchema(userConfig) {
     // デフォルト設定を基準にユーザー設定を適用
     return deepMerge(JSON.parse(JSON.stringify(defaultConfig_1.defaultSchema)), userConfig.codeCompletion.json);
 }
+exports.overrideSchema = overrideSchema;
 /**
  * 深いマージを行う（重複を排除）
  * @param target マージ先のオブジェクト

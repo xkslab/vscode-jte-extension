@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.activate = activate;
-exports.deactivate = deactivate;
+exports.deactivate = exports.activate = void 0;
 const vscode = require("vscode");
 const countBlocks_1 = require("./countBlocks");
 const completion_1 = require("./completion");
@@ -18,4 +17,6 @@ function activate(context) {
     (0, hoverPreview_1.registerHoverPreview)(context);
     vscode.window.showInformationMessage('JTE Extension is active!');
 }
+exports.activate = activate;
 function deactivate() { }
+exports.deactivate = deactivate;

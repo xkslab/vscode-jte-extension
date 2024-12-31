@@ -9,6 +9,7 @@ export interface JteConfig {
 	_configPath?: string;
 	blockColor?: any;
 	hideBlockColor?: Boolean;
+	iconSetRows?: number;
 }
 
 /**
@@ -29,6 +30,19 @@ export function loadConfig(): JteConfig | null {
 		console.error(`.jte.config.json の読み込みに失敗しました: ${error}`);
 		return null;
 	}
+}
+
+export function getProjectDir(config): string | undefined {
+	// config が null なら補完できない
+	if (!config || !config._configPath || !config.projectDir) {
+		return undefined;
+	}
+	// .jte.config.json が置かれているディレクトリ
+	const configDir = path.dirname(config._configPath);
+
+	// プロジェクトディレクトリの絶対パス
+	const projectRoot = path.resolve(configDir, config.projectDir);
+	return projectRoot;
 }
 
 /**

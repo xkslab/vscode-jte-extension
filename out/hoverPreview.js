@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerHoverPreview = registerHoverPreview;
+exports.registerHoverPreview = void 0;
 const vscode = require("vscode");
 const fs = require("fs");
 const path = require("path");
@@ -10,6 +10,7 @@ function registerHoverPreview(context) {
     const hoverProvider = new JteHoverProvider();
     context.subscriptions.push(vscode.languages.registerHoverProvider({ language: 'jte' }, hoverProvider));
 }
+exports.registerHoverPreview = registerHoverPreview;
 class JteHoverProvider {
     constructor() {
         this.config = (0, jteConfig_1.loadConfig)();

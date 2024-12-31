@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerColorDecoration = registerColorDecoration;
+exports.registerColorDecoration = void 0;
 const vscode = require("vscode");
 function registerColorDecoration(context) {
     var _a;
@@ -26,6 +26,7 @@ function registerColorDecoration(context) {
         decorationManager.updateDecorations(vscode.window.activeTextEditor.document);
     }
 }
+exports.registerColorDecoration = registerColorDecoration;
 class JteDecorationManager {
     constructor() {
         // 独自の色対応表
@@ -73,10 +74,10 @@ class JteDecorationManager {
                 overviewRulerColor: color,
                 // 代わりに `before` を使って小さな四角を表示
                 after: {
-                    contentText: '', // 見た目は四角だけにする
-                    backgroundColor: color, // 四角の塗りつぶし色
-                    margin: '0 0 0 4px', // テキストとの余白
-                    width: '0.75em', // 四角の大きさ（好みに応じて調整）
+                    contentText: '',
+                    backgroundColor: color,
+                    margin: '0 0 0 4px',
+                    width: '0.75em',
                     height: '0.75em',
                     border: '1px solid #888', // 薄い枠線
                 }

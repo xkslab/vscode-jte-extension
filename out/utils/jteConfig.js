@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loadConfig = loadConfig;
+exports.getProjectDir = exports.loadConfig = void 0;
 const vscode = require("vscode");
 const fs = require("fs");
 const path = require("path");
@@ -24,6 +24,19 @@ function loadConfig() {
         return null;
     }
 }
+exports.loadConfig = loadConfig;
+function getProjectDir(config) {
+    // config が null なら補完できない
+    if (!config || !config._configPath || !config.projectDir) {
+        return undefined;
+    }
+    // .jte.config.json が置かれているディレクトリ
+    const configDir = path.dirname(config._configPath);
+    // プロジェクトディレクトリの絶対パス
+    const projectRoot = path.resolve(configDir, config.projectDir);
+    return projectRoot;
+}
+exports.getProjectDir = getProjectDir;
 /**
  * .jte.config.json を探索（同階層から上位階層）
  * @param startPath 開始となるファイルまたはディレクトリのパス

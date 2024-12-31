@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerCountBlocksProvider = registerCountBlocksProvider;
+exports.registerCountBlocksProvider = void 0;
 const vscode = require("vscode");
 const jteConfig_1 = require("./utils/jteConfig");
 const defaultConfig_1 = require("./utils/defaultConfig");
@@ -9,6 +9,7 @@ function registerCountBlocksProvider(context) {
     context.subscriptions.push(vscode.languages.registerCodeLensProvider({ language: 'jte' }, provider));
     context.subscriptions.push(provider);
 }
+exports.registerCountBlocksProvider = registerCountBlocksProvider;
 class JteCountBlocksProvider {
     constructor() {
         // １行がJSON（空JSONを除外）かどうか判定
@@ -54,7 +55,7 @@ class JteCountBlocksProvider {
             decorationTypes[typeKey] = vscode.window.createTextEditorDecorationType({
                 before: {
                     contentText: '',
-                    margin: '0 8px 0 0', // テキストとの間に余白
+                    margin: '0 8px 0 0',
                     // left border を擬似CSSで描画
                     textDecoration: color !== ''
                         ? `none; border-left: 4px solid ${color};`

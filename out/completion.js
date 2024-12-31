@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerCompletionItemProvider = registerCompletionItemProvider;
+exports.registerCompletionItemProvider = void 0;
 const vscode = require("vscode");
 const fs = require("fs");
 const path = require("path");
@@ -8,6 +8,7 @@ const jteConfig_1 = require("./utils/jteConfig");
 const overrideSchema_1 = require("./utils/overrideSchema");
 const overrideControlSequence_1 = require("./utils/overrideControlSequence");
 const path_1 = require("./utils/path");
+const gameData_1 = require("./utils/gameData");
 function registerCompletionItemProvider(context) {
     const provider = new JteCompletionItemProvider();
     context.subscriptions.push(vscode.languages.registerCompletionItemProvider({ language: 'jte' }, provider, '"', ':', ',', '{', '[', '\\', '/'));
@@ -29,6 +30,7 @@ function registerCompletionItemProvider(context) {
     });
     context.subscriptions.push(configWatcher);
 }
+exports.registerCompletionItemProvider = registerCompletionItemProvider;
 class JteCompletionItemProvider {
     constructor() {
         this.colorMap = [
@@ -97,6 +99,62 @@ class JteCompletionItemProvider {
                 return item;
             });
         }
+        // \V[ で変数名を見ながら補完
+        if (/\\V\[$/.test(cursorText)) {
+            const projectDir = (0, jteConfig_1.getProjectDir)(this.config);
+            if (!projectDir) {
+                return [];
+            }
+            const variables = (0, gameData_1.getVariables)(projectDir);
+            if (variables.length === 0) {
+                return [];
+            }
+            return variables.slice(1).map((variable, index) => {
+                index += 1;
+                const item = new vscode.CompletionItem(`${index.toString().padStart(4, '0')} ${variable}`, vscode.CompletionItemKind.Variable);
+                item.insertText = index.toString();
+                return item;
+            });
+        }
+        // \I[ でIconSet.pngを見ながらアイコン番号を補完
+        if (/\\I\[$/.test(cursorText)) {
+            const projectDir = (0, jteConfig_1.getProjectDir)(this.config);
+            if (!projectDir) {
+                return [];
+            }
+            const iconSetPath = (0, gameData_1.getIconSetPath)(projectDir);
+            if (!iconSetPath) {
+                return [];
+            }
+            const maxCols = 16;
+            // maxRowsはconfigから取得する
+            const maxRows = this.config.iconSetRows || 20;
+            const items = [];
+            for (let i = 0; i < maxRows; i++) {
+                const iconNumber = i * maxCols;
+                const item = new vscode.CompletionItem(`${iconNumber.toString().padStart(4, '0')}  (${i + 1}行, 1列)`, vscode.CompletionItemKind.Value);
+                item.insertText = iconNumber.toString();
+                item.documentation = new vscode.MarkdownString(`![](${vscode.Uri.file(iconSetPath).toString()})`);
+                items.push(item);
+            }
+            return items;
+        }
+        // \N[ でアクター名を補完
+        if (/\\N\[$/.test(cursorText)) {
+            const projectDir = (0, jteConfig_1.getProjectDir)(this.config);
+            if (!projectDir) {
+                return [];
+            }
+            const actors = (0, gameData_1.getActorsName)(projectDir);
+            if (actors.length === 0) {
+                return [];
+            }
+            return actors.map(({ name, id }) => {
+                const item = new vscode.CompletionItem(`${id.toString().padStart(4, '0')} ${name}`, vscode.CompletionItemKind.Value);
+                item.insertText = id.toString();
+                return item;
+            });
+        }
         // Path 補完
         let pathKeyMatch = null;
         if (currentType === 'show picture' || currentType === 'bgm') {
@@ -110,14 +168,11 @@ class JteCompletionItemProvider {
         // path 補完をするのは currentType が pathMapping にある場合のみ
         if (pathKeyMatch && path_1.pathMapping[currentType]) {
             const partialPath = pathKeyMatch[1] || '';
-            // config が null なら補完できない
-            if (!this.config || !this.config._configPath || !this.config.projectDir) {
+            // プロジェクトのルートディレクトリ
+            const projectRoot = (0, jteConfig_1.getProjectDir)(this.config);
+            if (!projectRoot) {
                 return [];
             }
-            // .jte.config.json が置かれているディレクトリ
-            const configDir = path.dirname(this.config._configPath);
-            // プロジェクトのルート
-            const projectRoot = path.resolve(configDir, this.config.projectDir);
             // 今回は show picture => projectRoot/img/pictures など
             const baseDir = path.join(projectRoot, path_1.pathMapping[currentType]);
             // partialPath まで付与して絶対パスを求める
@@ -284,7 +339,9 @@ class JteCompletionItemProvider {
         // 制御文字を提供
         if (/\\$/.test(cursorText)) {
             return this.controlSequence.map(({ key, description }) => {
-                const item = new vscode.CompletionItem(key, vscode.CompletionItemKind.Snippet);
+                const displayText = `\\${key.padEnd(5, ' ')} ${description}`;
+                // const displayText = key;
+                const item = new vscode.CompletionItem(displayText, vscode.CompletionItemKind.Value);
                 item.insertText = key;
                 item.detail = description;
                 return item;

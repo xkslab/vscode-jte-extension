@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.overrideControlSequence = overrideControlSequence;
+exports.overrideControlSequence = void 0;
 const defaultConfig_1 = require("./defaultConfig");
 /**
  * デフォルトの制御文字補完設定をユーザ設定でオーバーライド
@@ -16,3 +16,4 @@ function overrideControlSequence(userConfig) {
     return Array.from(new Map(combined.map((item) => [item.key, item])).values() // 重複を排除
     );
 }
+exports.overrideControlSequence = overrideControlSequence;
