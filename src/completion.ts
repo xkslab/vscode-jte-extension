@@ -284,8 +284,14 @@ class JteCompletionItemProvider implements vscode.CompletionItemProvider {
 
 		// キー候補を提供
 		if (/\{\s*\"?$/.test(cursorText) || /,\s*\"?$/.test(cursorText)) {
-			return this.schema[currentType]?.properties.map(({ key, description }) => {
-				const item = new vscode.CompletionItem(key, vscode.CompletionItemKind.Property);
+			return this.schema[currentType]?.properties.map(({ key, description, kind }) => {
+				// Kind によってアイコンを変える
+				const item = new vscode.CompletionItem(`${key.padEnd(10, ' ')} ${description}`, 
+					kind === "Command" ? vscode.CompletionItemKind.Function :
+					kind === "Command Params" ? vscode.CompletionItemKind.Variable : 
+					kind === "JTE Params" ? vscode.CompletionItemKind.Property :
+					vscode.CompletionItemKind.Field
+				);
 				item.detail = description;
 
 				const range = new vscode.Range(position, position);
@@ -336,7 +342,7 @@ class JteCompletionItemProvider implements vscode.CompletionItemProvider {
 		if (keyMatch) {
 			const key = keyMatch[1];
 			return this.schema[currentType]?.values[key]?.map(({ value, description }) => {
-				const item = new vscode.CompletionItem(value, vscode.CompletionItemKind.Value);
+				const item = new vscode.CompletionItem(`${value.padEnd(14, ' ')} ${description}`, vscode.CompletionItemKind.Value);
 				let insertText = value;
 				let cursorMoveDistance = 1; // デフォルトで1文字右に移動
 

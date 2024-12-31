@@ -2,31 +2,31 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.defaultTypeColorMap = exports.defaultControlSequence = exports.defaultSchema = void 0;
 // プロパティと値の対応表
+const commonProperties = [
+    { key: "mark", description: "JTEコマンド用マークを設定する", kind: "JTE Params" },
+];
 exports.defaultSchema = {
     default: {
         properties: [
-            { key: "type", description: "コマンドを指定" },
-            { key: "preset", description: "プリセットを指定" }
+            { key: "type", description: "コマンドを指定", kind: "Command" },
+            { key: "preset", description: "プリセットを指定", kind: "Command" }
         ],
         values: {
             type: [
                 { value: "show text", description: "文章の表示" },
-                { value: "文章の表示", description: "文章の表示" },
                 { value: "show picture", description: "ピクチャの表示" },
-                { value: "ピクチャの表示", description: "ピクチャの表示" },
                 { value: "erase picture", description: "ピクチャの消去" },
-                { value: "ピクチャの消去", description: "ピクチャの消去" }
             ],
         }
     },
     "show text": {
         properties: [
-            { key: "name", description: "名前" },
-            { key: "bg", description: "背景" },
-            { key: "position", description: "ウィンドウ位置" },
-            { key: "faceImage", description: "顔" },
-            { key: "faceIndex", description: "表示する顔グラフィックのインデックス。" },
-            { key: "mark", description: "マーク" },
+            { key: "name", description: "名前", kind: "Command Params" },
+            { key: "bg", description: "背景", kind: "Command Params" },
+            { key: "position", description: "ウィンドウ位置", kind: "Command Params" },
+            { key: "faceImage", description: "顔", kind: "Command Params" },
+            { key: "faceIndex", description: "表示する顔グラフィックのインデックス。", kind: "Command Params" },
+            ...commonProperties,
         ],
         values: {
             bg: [
@@ -53,16 +53,16 @@ exports.defaultSchema = {
     },
     "show picture": {
         properties: [
-            { key: "id", description: "ピクチャ番号" },
-            { key: "path", description: "画像パス" },
-            { key: "x", description: "X座標" },
-            { key: "y", description: "Y座標" },
-            { key: "scaleX", description: "拡大率 幅" },
-            { key: "scaleY", description: "拡大率 高さ" },
-            { key: "blendMode", description: "合成方法" },
-            { key: "opacity", description: "不透明度" },
-            { key: "origin", description: "原点" },
-            { key: "mark", description: "マーク" }
+            { key: "id", description: "ピクチャ番号", kind: "Command Params" },
+            { key: "path", description: "画像パス", kind: "Command Params" },
+            { key: "x", description: "X座標", kind: "Command Params" },
+            { key: "y", description: "Y座標", kind: "Command Params" },
+            { key: "scaleX", description: "拡大率 幅", kind: "Command Params" },
+            { key: "scaleY", description: "拡大率 高さ", kind: "Command Params" },
+            { key: "blendMode", description: "合成方法", kind: "Command Params" },
+            { key: "opacity", description: "不透明度", kind: "Command Params" },
+            { key: "origin", description: "原点", kind: "Command Params" },
+            ...commonProperties,
         ],
         values: {
             id: [
@@ -84,8 +84,8 @@ exports.defaultSchema = {
     },
     "erase picture": {
         properties: [
-            { key: "id", description: "ピクチャ番号" },
-            { key: "mark", description: "マーク" }
+            { key: "id", description: "ピクチャ番号", kind: "Command Params" },
+            ...commonProperties,
         ],
         values: {
             id: [
@@ -96,9 +96,6 @@ exports.defaultSchema = {
         }
     },
 };
-exports.defaultSchema["文章の表示"] = exports.defaultSchema["show text"];
-exports.defaultSchema["ピクチャの表示"] = exports.defaultSchema["show picture"];
-exports.defaultSchema["ピクチャの消去"] = exports.defaultSchema["erase picture"];
 exports.defaultControlSequence = [
     { key: "V", description: "\\V[n] 変数n番の値に置き換えられます。" },
     { key: "N", description: "\\N[n] アクターn番の名前に置き換えられます。" },

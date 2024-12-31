@@ -258,8 +258,12 @@ class JteCompletionItemProvider {
         }
         // キー候補を提供
         if (/\{\s*\"?$/.test(cursorText) || /,\s*\"?$/.test(cursorText)) {
-            return (_b = (_a = this.schema[currentType]) === null || _a === void 0 ? void 0 : _a.properties.map(({ key, description }) => {
-                const item = new vscode.CompletionItem(key, vscode.CompletionItemKind.Property);
+            return (_b = (_a = this.schema[currentType]) === null || _a === void 0 ? void 0 : _a.properties.map(({ key, description, kind }) => {
+                // Kind によってアイコンを変える
+                const item = new vscode.CompletionItem(`${key.padEnd(10, ' ')} ${description}`, kind === "Command" ? vscode.CompletionItemKind.Function :
+                    kind === "Command Params" ? vscode.CompletionItemKind.Variable :
+                        kind === "JTE Params" ? vscode.CompletionItemKind.Property :
+                            vscode.CompletionItemKind.Field);
                 item.detail = description;
                 const range = new vscode.Range(position, position);
                 // 挿入テキストとカーソル移動距離の初期化
@@ -302,7 +306,7 @@ class JteCompletionItemProvider {
         if (keyMatch) {
             const key = keyMatch[1];
             return (_e = (_d = (_c = this.schema[currentType]) === null || _c === void 0 ? void 0 : _c.values[key]) === null || _d === void 0 ? void 0 : _d.map(({ value, description }) => {
-                const item = new vscode.CompletionItem(value, vscode.CompletionItemKind.Value);
+                const item = new vscode.CompletionItem(`${value.padEnd(14, ' ')} ${description}`, vscode.CompletionItemKind.Value);
                 let insertText = value;
                 let cursorMoveDistance = 1; // デフォルトで1文字右に移動
                 // 左側にクォートがない場合、クォートを補完
