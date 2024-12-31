@@ -106,7 +106,7 @@ class JteCompletionItemProvider implements vscode.CompletionItemProvider {
         // \C[ で色番号を補完
         if (/\\C\[$/.test(cursorText)) {
             return this.colorMap.map(({id, color}) => {
-                const item = new vscode.CompletionItem(id, vscode.CompletionItemKind.Color);
+                const item = new vscode.CompletionItem(`${id.toString().padStart(2, '0')} ${color}`, vscode.CompletionItemKind.Color);
                 item.insertText = id;
                 item.detail = `Color Code: ${color}`;
 				item.documentation = new vscode.MarkdownString(`**Preview:**\n\n![](https://dummyimage.com/16x16/${color.slice(1,7)}/${color.slice(1,7)})`);
