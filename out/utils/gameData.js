@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getIconSetPath = exports.getActorsName = exports.getSwitches = exports.getVariables = void 0;
+exports.getActorsName = exports.getSwitches = exports.getVariables = void 0;
 const fs = require("fs");
 const path = require("path");
 function getVariables(projectDir) {
     const systemJsonPath = path.join(projectDir, 'data', 'System.json');
     if (!fs.existsSync(systemJsonPath)) {
+        console.log('System.json not found');
         return [];
     }
     const systemJson = JSON.parse(fs.readFileSync(systemJsonPath, 'utf-8'));
@@ -35,11 +36,3 @@ function getActorsName(projectDir) {
     });
 }
 exports.getActorsName = getActorsName;
-function getIconSetPath(projectDir) {
-    const iconSetPath = path.join(projectDir, 'img', 'system', 'IconSet.png');
-    if (!fs.existsSync(iconSetPath)) {
-        return undefined;
-    }
-    return iconSetPath;
-}
-exports.getIconSetPath = getIconSetPath;

@@ -5,7 +5,7 @@ export function registerSaveNotification(context: vscode.ExtensionContext) {
         vscode.workspace.onDidSaveTextDocument((document) => {
             if (document.fileName.endsWith('.jte')) {
                 vscode.window.showWarningMessage(
-                    'RPGツクールのイベントにコピーしないと変更が反映されないので注意してください！'
+                    'ツクールのイベントにコピーしないと変更が反映されません！'
                 );
             }
         })

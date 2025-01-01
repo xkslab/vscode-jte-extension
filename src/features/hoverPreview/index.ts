@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { loadConfig } from './utils/jteConfig';
-import { pathMapping } from './utils/path';
+import { loadConfig } from '../../config';
+import { commandPathMapping } from '../../utils/systemPath';
 
 export function registerHoverPreview(context: vscode.ExtensionContext) {
     const hoverProvider = new JteHoverProvider();
@@ -33,11 +33,13 @@ class JteHoverProvider implements vscode.HoverProvider {
 
         const typeValue = this.getTypeValue(document, position);
 
+        const key = this.getKey(document, position);
+
         // "type" が適切でない場合は終了
         if (!typeValue) return;
 
         // "type" に応じてパスを補正
-        const relativePath = this.resolvePathByType(typeValue, word);
+        const relativePath = this.resolvePathByType(typeValue, key, word);
 
         if (!relativePath || !this.isImageFile(relativePath)) return;
 
@@ -59,9 +61,29 @@ class JteHoverProvider implements vscode.HoverProvider {
         }
         return null;
     }
+
+    private getKey(document: vscode.TextDocument, position: vscode.Position): string | null {
+        // 現在の行のテキストを取得
+        const currentLine = document.lineAt(position.line).text;
     
-    private resolvePathByType(type: string, relativePath: string): string | null {
-        const subDir = pathMapping[type];
+        // カーソル位置の前までの文字列を取得
+        const beforeCursorText = currentLine.slice(0, position.character);
+    
+        // コロンの位置を探す（右から左に検索）
+        const colonIndex = beforeCursorText.lastIndexOf(':');
+        if (colonIndex === -1) return null; // コロンが見つからない場合
+    
+        // コロンの左側にあるキーを探す（キーはダブルクォートで囲まれている）
+        const keyMatch = beforeCursorText.slice(0, colonIndex).match(/"([^"\s]+)"\s*$/);
+        if (keyMatch) {
+            return keyMatch[1]; // キー名を返す
+        }
+    
+        return null; // キーが見つからない場合
+    }
+    
+    private resolvePathByType(type: string, key: string, relativePath: string): string | null {
+        const subDir = commandPathMapping[type][key];
         if (!subDir) return null;
     
         return path.join(this.projectRoot, subDir, relativePath);

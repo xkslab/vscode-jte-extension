@@ -1,9 +1,11 @@
-// プロパティと値の対応表
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.setupJsonSchema = void 0;
+const deepMerge_1 = require("../../utils/deepMerge");
 const commonProperties = [
-    { key: "mark", description: "JTEコマンド用マークを設定する", kind: "JTE Params" },
+    { key: "mark", description: "(JTEコマンド用)マークを設定する", kind: "JTE Params" },
 ];
-
-export const defaultSchema = {
+const defaultJsonSchema = {
     default: {
         properties: [
             { key: "type", description: "コマンドを指定", kind: "Command" },
@@ -94,29 +96,16 @@ export const defaultSchema = {
         }
     },
 };
-
-export const defaultControlSequence = [
-    { key: "V", description: "\\V[n] 変数n番の値に置き換えられます。" },
-    { key: "N", description: "\\N[n] アクターn番の名前に置き換えられます。" },
-    { key: "P", description: "\\P[n] パーティーメンバーn番に置き換えられます。" },
-    { key: "G", description: "\\G 通貨単位に置き換えられます。" },
-    { key: "C", description: "\\C[n] 以降の文字色をn番の色で表示します。" },
-    { key: "I", description: "\\I[n] アイコンn番を描画します。" },
-    { key: "{", description: "\\{ 文字サイズを1段階大きくします。" },
-    { key: "}", description: "\\} 文字サイズを1段階小さくします。" },
-    { key: "\\", description: "\\\\ バックスラッシュに置き換えられます。" },
-    { key: "$", description: "\\$ 所持金のウィンドウを開きます。" },
-    { key: ".", description: "\\. 1/4秒待ちます。" },
-    { key: "|", description: "\\| 1秒待ちます。" },
-    { key: "!", description: "\\! ボタン入力を待ちます。" },
-    { key: ">", description: "\\> 同じ行の残りの文字を一瞬で表示します。" },
-    { key: "<", description: "\\< 文字を一瞬で表示する効果を取り消します。" },
-    { key: "^", description: "\\^ 文章表示後の入力待ちをしません。" },
-];
-
-export const defaultTypeColorMap: Record<string, string> = {
-    "show text": 'rgba(255, 150, 70, 0.5)',     // 青
-    "show picture": 'rgba(0, 212, 198, 0.5)', // 緑
-    "erase picture": 'rgba(255, 0, 128, 0.5)',  // ピンク
-    default: 'rgba(128, 128, 128, 0.5)'// グレー
-};
+/**
+ * デフォルトのスキーマをユーザ設定でオーバーライド
+ * @param userConfig ユーザのコンフィグ
+ * @returns オーバーライド済みのスキーマ
+ */
+function setupJsonSchema(userConfig) {
+    if (!userConfig || !userConfig.codeCompletion || !userConfig.codeCompletion.json) {
+        return defaultJsonSchema; // デフォルトをそのまま返す
+    }
+    // デフォルト設定を基準にユーザー設定を適用
+    return (0, deepMerge_1.deepMerge)(JSON.parse(JSON.stringify(defaultJsonSchema)), userConfig.codeCompletion.json);
+}
+exports.setupJsonSchema = setupJsonSchema;

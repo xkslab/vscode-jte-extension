@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { loadConfig } from './utils/jteConfig';
-import { defaultTypeColorMap } from './utils/defaultConfig';
+import { loadConfig } from '../../config';
+import { defaultBlockColor } from '../../config/blockDecoration/blockColor';
 
 export function registerCountBlocksProvider(context: vscode.ExtensionContext) {
   const provider = new JteCountBlocksProvider();
@@ -44,7 +44,7 @@ class JteCountBlocksProvider implements vscode.CodeLensProvider, vscode.Disposab
     }
 
     // デフォルト + ユーザ上書き
-    const mergedColorMap: Record<string, string> = { ...defaultTypeColorMap };
+    const mergedColorMap: Record<string, string> = { ...defaultBlockColor };
 
     if (typeof userBlockColor === 'object') {
       for (const [typeKey, colorOrOff] of Object.entries(userBlockColor)) {

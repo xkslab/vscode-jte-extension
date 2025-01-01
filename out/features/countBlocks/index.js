@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerCountBlocksProvider = void 0;
 const vscode = require("vscode");
-const config_1 = require("./config");
-const blockColor_1 = require("./config/blockDecoration/blockColor");
+const config_1 = require("../../config");
+const blockColor_1 = require("../../config/blockDecoration/blockColor");
 function registerCountBlocksProvider(context) {
     const provider = new JteCountBlocksProvider();
     context.subscriptions.push(vscode.languages.registerCodeLensProvider({ language: 'jte' }, provider));

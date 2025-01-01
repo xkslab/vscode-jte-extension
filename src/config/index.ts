@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { CodeCompletion } from './codeCompletion';
 
 
 export interface JteConfig {
 	projectDir?: string;
-    codeCompletion?: any;
+    codeCompletion?: CodeCompletion;
 	_configPath?: string;
 	blockColor?: any;
 	hideBlockColor?: Boolean;

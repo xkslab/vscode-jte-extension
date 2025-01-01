@@ -4,6 +4,7 @@ import * as path from 'path';
 export function getVariables(projectDir: string): string[] {
     const systemJsonPath = path.join(projectDir, 'data', 'System.json');
     if (!fs.existsSync(systemJsonPath)) {
+        console.log('System.json not found');
         return [];
     }
     const systemJson = JSON.parse(fs.readFileSync(systemJsonPath, 'utf-8'));
@@ -32,13 +33,4 @@ export function getActorsName(projectDir: string): { name: string, id: number }[
         return { name: actor.name, id: actor.id };
     }
     );
-}
-
-
-export function getIconSetPath(projectDir: string): string | undefined {
-    const iconSetPath = path.join(projectDir, 'img', 'system', 'IconSet.png');
-    if (!fs.existsSync(iconSetPath)) {
-        return undefined;
-    }
-    return iconSetPath;
 }

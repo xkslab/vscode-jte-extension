@@ -4,9 +4,9 @@ exports.registerCompletionItemProvider = void 0;
 const vscode = require("vscode");
 const fs = require("fs");
 const path = require("path");
-const jteConfig_1 = require("./utils/jteConfig");
-const overrideSchema_1 = require("./utils/overrideSchema");
-const overrideControlSequence_1 = require("./utils/overrideControlSequence");
+const config_1 = require("./config");
+const jsonSchema_1 = require("./config/codeCompletion/jsonSchema");
+const controlSequence_1 = require("./config/codeCompletion/controlSequence");
 const path_1 = require("./utils/path");
 const gameData_1 = require("./utils/gameData");
 function registerCompletionItemProvider(context) {
@@ -15,10 +15,10 @@ function registerCompletionItemProvider(context) {
     // 設定変更時のリスナーを登録
     const configWatcher = vscode.workspace.createFileSystemWatcher('**/.jte.config.json');
     configWatcher.onDidChange(() => {
-        const newConfig = (0, jteConfig_1.loadConfig)();
+        const newConfig = (0, config_1.loadConfig)();
         if (newConfig) {
-            provider.schema = (0, overrideSchema_1.overrideSchema)(newConfig);
-            provider.controlSequence = (0, overrideControlSequence_1.overrideControlSequence)(newConfig);
+            provider.schema = (0, jsonSchema_1.setupJsonSchema)(newConfig);
+            provider.controlSequence = (0, controlSequence_1.setupControlSequence)(newConfig);
             provider.setConfig(newConfig);
             console.log('Updated schema and control sequence based on config change.');
         }
@@ -69,12 +69,12 @@ class JteCompletionItemProvider {
         ];
         this.config = null;
         // 初期読み込み
-        const userConfig = (0, jteConfig_1.loadConfig)();
+        const userConfig = (0, config_1.loadConfig)();
         if (userConfig) {
             this.config = userConfig;
         }
-        this.schema = (0, overrideSchema_1.overrideSchema)(userConfig);
-        this.controlSequence = (0, overrideControlSequence_1.overrideControlSequence)(userConfig);
+        this.schema = (0, jsonSchema_1.setupJsonSchema)(userConfig);
+        this.controlSequence = (0, controlSequence_1.setupControlSequence)(userConfig);
     }
     setConfig(newConfig) {
         this.config = newConfig;
@@ -101,7 +101,7 @@ class JteCompletionItemProvider {
         }
         // \V[ で変数名を見ながら補完
         if (/\\V\[$/.test(cursorText)) {
-            const projectDir = (0, jteConfig_1.getProjectDir)(this.config);
+            const projectDir = (0, config_1.getProjectDir)(this.config);
             if (!projectDir) {
                 return [];
             }
@@ -118,7 +118,7 @@ class JteCompletionItemProvider {
         }
         // \I[ でIconSet.pngを見ながらアイコン番号を補完
         if (/\\I\[$/.test(cursorText)) {
-            const projectDir = (0, jteConfig_1.getProjectDir)(this.config);
+            const projectDir = (0, config_1.getProjectDir)(this.config);
             if (!projectDir) {
                 return [];
             }
@@ -141,7 +141,7 @@ class JteCompletionItemProvider {
         }
         // \N[ でアクター名を補完
         if (/\\N\[$/.test(cursorText)) {
-            const projectDir = (0, jteConfig_1.getProjectDir)(this.config);
+            const projectDir = (0, config_1.getProjectDir)(this.config);
             if (!projectDir) {
                 return [];
             }
@@ -169,7 +169,7 @@ class JteCompletionItemProvider {
         if (pathKeyMatch && path_1.pathMapping[currentType]) {
             const partialPath = pathKeyMatch[1] || '';
             // プロジェクトのルートディレクトリ
-            const projectRoot = (0, jteConfig_1.getProjectDir)(this.config);
+            const projectRoot = (0, config_1.getProjectDir)(this.config);
             if (!projectRoot) {
                 return [];
             }

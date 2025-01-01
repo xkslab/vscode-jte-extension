@@ -1,17 +1,17 @@
 import * as vscode from 'vscode';
-import { registerCountBlocksProvider } from './countBlocks';
-import { registerCompletionItemProvider } from './completion';
-import { registerColorDecoration } from './colorDecoration';
-import { registerToggleComment } from './toggleComment';
-import { registerSaveNotification } from './notice';
-import { registerHoverPreview } from './hoverPreview';
+import { registerCountBlocksProvider } from './features/countBlocks';
+import { registerCompletionItemProvider } from './features/completion';
+import { registerColorPreview } from './features/colorPreview';
+import { registerToggleComment } from './features/toggleComment';
+import { registerSaveNotification } from './features/notice';
+import { registerHoverPreview } from './features/hoverPreview';
 
 export function activate(context: vscode.ExtensionContext) {
 	registerCountBlocksProvider(context);
 
     registerCompletionItemProvider(context);
 
-    registerColorDecoration(context);
+    registerColorPreview(context);
 
     registerToggleComment(context);
 
