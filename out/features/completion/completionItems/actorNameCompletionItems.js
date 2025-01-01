@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.actorNameCompletionItems = void 0;
+exports.getActorNameCompletionItems = void 0;
 const vscode = require("vscode");
 const config_1 = require("../../../config");
 const gameData_1 = require("../../../utils/gameData");
-function actorNameCompletionItems(config) {
+function getActorNameCompletionItems(config) {
     const projectDir = (0, config_1.getProjectDir)(config);
     if (!projectDir) {
         return [];
@@ -19,4 +19,4 @@ function actorNameCompletionItems(config) {
         return item;
     });
 }
-exports.actorNameCompletionItems = actorNameCompletionItems;
+exports.getActorNameCompletionItems = getActorNameCompletionItems;

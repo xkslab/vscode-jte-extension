@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.valueCompletionItems = void 0;
+exports.getValueCompletionItems = void 0;
 const vscode = require("vscode");
-function valueCompletionItems(cursorText, cursorTextPost, key, jsonSchemaValues) {
+function getValueCompletionItems(cursorText, cursorTextPost, key, jsonSchemaValues) {
     var _a, _b;
     return (_b = (_a = jsonSchemaValues[key]) === null || _a === void 0 ? void 0 : _a.map(({ value, description }) => {
         const item = new vscode.CompletionItem(`${value.padEnd(14, ' ')} ${description}`, vscode.CompletionItemKind.Value);
@@ -39,4 +39,4 @@ function valueCompletionItems(cursorText, cursorTextPost, key, jsonSchemaValues)
         return item;
     })) !== null && _b !== void 0 ? _b : [];
 }
-exports.valueCompletionItems = valueCompletionItems;
+exports.getValueCompletionItems = getValueCompletionItems;

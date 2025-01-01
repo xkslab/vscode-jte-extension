@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.controlSequenceCompletionItems = void 0;
+exports.getControlSequenceCompletionItems = void 0;
 const vscode = require("vscode");
-function controlSequenceCompletionItems(controlSequence) {
+function getControlSequenceCompletionItems(controlSequence) {
     return controlSequence.map(({ key, description }) => {
         const displayText = `\\${key.padEnd(5, ' ')} ${description}`;
         const item = new vscode.CompletionItem(displayText, vscode.CompletionItemKind.Value);
@@ -11,4 +11,4 @@ function controlSequenceCompletionItems(controlSequence) {
         return item;
     });
 }
-exports.controlSequenceCompletionItems = controlSequenceCompletionItems;
+exports.getControlSequenceCompletionItems = getControlSequenceCompletionItems;

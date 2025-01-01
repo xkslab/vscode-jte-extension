@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { getProjectDir, JteConfig } from '../../../config';
 import { getIconSetPath } from '../../../utils/systemPath';
 
-export function iconIdCompletionItems(config: JteConfig): vscode.CompletionItem[] {
+export function getIconIdCompletionItems(config: JteConfig): vscode.CompletionItem[] {
     const projectDir = getProjectDir(config);
     if (!projectDir) {
         return [];

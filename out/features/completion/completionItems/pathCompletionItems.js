@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.pathCompletionItemsByType = void 0;
+exports.getPathCompletionItemsByType = void 0;
 const vscode = require("vscode");
 const path = require("path");
 const fs = require("fs");
 const config_1 = require("../../../config");
-function pathCompletionItemsByType(currentType, cursorText, cursorTextPost, config, commandPathMapping) {
+function getPathCompletionItemsByType(currentType, cursorText, cursorTextPost, config, commandPathMapping) {
     let pathKeyMatch = null;
     switch (currentType) {
         case 'show picture':
@@ -25,7 +25,7 @@ function pathCompletionItemsByType(currentType, cursorText, cursorTextPost, conf
     }
     return [];
 }
-exports.pathCompletionItemsByType = pathCompletionItemsByType;
+exports.getPathCompletionItemsByType = getPathCompletionItemsByType;
 function pathCompletionItems(cursorText, cursorTextPost, config, basePath, partialPath) {
     const projectRoot = (0, config_1.getProjectDir)(config);
     if (!projectRoot) {

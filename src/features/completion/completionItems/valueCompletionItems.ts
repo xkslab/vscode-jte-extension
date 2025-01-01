@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { JsonSchemaValue } from '../../../config/codeCompletion/jsonSchema';
 
-export function valueCompletionItems(
+export function getValueCompletionItems(
     cursorText: string, 
     cursorTextPost: string,
     key: string, 

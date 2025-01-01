@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.variableNameCompletionItems = void 0;
+exports.getVariableNameCompletionItems = void 0;
 const vscode = require("vscode");
 const gameData_1 = require("../../../utils/gameData");
 const config_1 = require("../../../config");
-function variableNameCompletionItems(config) {
+function getVariableNameCompletionItems(config) {
     const projectDir = (0, config_1.getProjectDir)(config);
     if (!projectDir) {
         return [];
@@ -20,4 +20,4 @@ function variableNameCompletionItems(config) {
         return item;
     });
 }
-exports.variableNameCompletionItems = variableNameCompletionItems;
+exports.getVariableNameCompletionItems = getVariableNameCompletionItems;

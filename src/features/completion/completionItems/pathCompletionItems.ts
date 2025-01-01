@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { getProjectDir, JteConfig } from '../../../config';
 
 
-export function pathCompletionItemsByType(
+export function getPathCompletionItemsByType(
     currentType: string,
     cursorText: string, 
     cursorTextPost: string, 

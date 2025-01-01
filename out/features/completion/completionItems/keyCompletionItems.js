@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.keyCompletionItems = void 0;
+exports.getKeyCompletionItems = void 0;
 const vscode = require("vscode");
-function keyCompletionItems(cursorText, cursorTextPost, position, currentTypeSchema) {
+function getKeyCompletionItems(cursorText, cursorTextPost, position, currentTypeSchema) {
     if (!currentTypeSchema)
         return [];
     return currentTypeSchema.map(({ key, description, kind }) => {
@@ -48,4 +48,4 @@ function keyCompletionItems(cursorText, cursorTextPost, position, currentTypeSch
         return item;
     });
 }
-exports.keyCompletionItems = keyCompletionItems;
+exports.getKeyCompletionItems = getKeyCompletionItems;

@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.iconIdCompletionItems = void 0;
+exports.getIconIdCompletionItems = void 0;
 const vscode = require("vscode");
 const config_1 = require("../../../config");
 const systemPath_1 = require("../../../utils/systemPath");
-function iconIdCompletionItems(config) {
+function getIconIdCompletionItems(config) {
     const projectDir = (0, config_1.getProjectDir)(config);
     if (!projectDir) {
         return [];
@@ -25,4 +25,4 @@ function iconIdCompletionItems(config) {
     }
     return items;
 }
-exports.iconIdCompletionItems = iconIdCompletionItems;
+exports.getIconIdCompletionItems = getIconIdCompletionItems;

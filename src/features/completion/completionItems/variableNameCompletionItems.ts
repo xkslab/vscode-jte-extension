@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { getVariables } from '../../../utils/gameData';
 import { getProjectDir } from '../../../config';
 
-export function variableNameCompletionItems(config): vscode.CompletionItem[] {
+export function getVariableNameCompletionItems(config): vscode.CompletionItem[] {
     const projectDir = getProjectDir(config);
     if (!projectDir) {
         return [];

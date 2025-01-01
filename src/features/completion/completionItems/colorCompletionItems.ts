@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { ColorMapping } from '../../../config/codeCompletion/colors';
 
-export function colorCompletionItems (colorMap: ColorMapping): vscode.CompletionItem[] {
+export function getColorCompletionItems (colorMap: ColorMapping): vscode.CompletionItem[] {
     return Object.entries(colorMap).map(([key, { color, description }]) => {
         const item = new vscode.CompletionItem(`${key.padStart(2, '0')} (${description})`, vscode.CompletionItemKind.Color);
         item.insertText = key;

@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { getProjectDir, JteConfig } from '../../../config';
 import { getActorsName } from '../../../utils/gameData';
 
-export function actorNameCompletionItems(config: JteConfig): vscode.CompletionItem[] {
+export function getActorNameCompletionItems(config: JteConfig): vscode.CompletionItem[] {
     const projectDir = getProjectDir(config);
     if (!projectDir) {
         return [];

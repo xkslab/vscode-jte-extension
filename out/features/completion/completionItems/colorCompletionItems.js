@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.colorCompletionItems = void 0;
+exports.getColorCompletionItems = void 0;
 const vscode = require("vscode");
-function colorCompletionItems(colorMap) {
+function getColorCompletionItems(colorMap) {
     return Object.entries(colorMap).map(([key, { color, description }]) => {
         const item = new vscode.CompletionItem(`${key.padStart(2, '0')} (${description})`, vscode.CompletionItemKind.Color);
         item.insertText = key;
@@ -12,4 +12,4 @@ function colorCompletionItems(colorMap) {
         return item;
     });
 }
-exports.colorCompletionItems = colorCompletionItems;
+exports.getColorCompletionItems = getColorCompletionItems;

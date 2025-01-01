@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { JsonSchemaProperty } from '../../../config/codeCompletion/jsonSchema';
 
-export function keyCompletionItems(
+export function getKeyCompletionItems(
     cursorText: string, 
     cursorTextPost: string,
     position: vscode.Position,
