@@ -2,14 +2,14 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { CodeCompletion } from './codeCompletion';
+import { BlockDecoration } from './blockDecoration';
 
 
 export interface JteConfig {
 	projectDir?: string;
     codeCompletion?: CodeCompletion;
 	_configPath?: string;
-	blockColor?: any;
-	hideBlockColor?: Boolean;
+	blockDecoration?: BlockDecoration;
 	iconSetRows?: number;
 }
 

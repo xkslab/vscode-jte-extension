@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { registerCountBlocksProvider } from './features/countBlocks';
+import { registerBlockDecorationProvider } from './features/blockDecoration';
 import { registerCompletionItemProvider } from './features/completion';
 import { registerColorPreview } from './features/colorPreview';
 import { registerToggleComment } from './features/toggleComment';
@@ -7,7 +7,7 @@ import { registerSaveNotification } from './features/notice';
 import { registerHoverPreview } from './features/hoverPreview';
 
 export function activate(context: vscode.ExtensionContext) {
-	registerCountBlocksProvider(context);
+	registerBlockDecorationProvider(context);
 
     registerCompletionItemProvider(context);
 
