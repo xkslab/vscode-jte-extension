@@ -25,7 +25,7 @@ RPGツクールMZ用のイベント管理プラグインです。
 
 ## サポート
 - Visual Studio Code用の編集補助拡張機能は[こちら](https://marketplace.visualstudio.com/items?itemName=xks.vscode-jte-extension)からダウンロードできます。
-- 質問や不具合報告は[GitHubリポジトリ](https://github.com/xkslab/vscode-jte-extension)や[X(Twitter)](https://x.com/xks1620684)まで。
+- 質問や不具合報告は[GitHubリポジトリ](https://github.com/xkslab/vscode-jte-extension)や[X(Twitter)](https://x.com/xkslab)まで。
 
 ## 免責
 > このプラグインに関して生じた問題について、作者は一切の責任を負いません。
